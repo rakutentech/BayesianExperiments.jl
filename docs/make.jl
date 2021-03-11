@@ -14,3 +14,7 @@ makedocs(
         ]
     ]
 )
+
+deploydocs(;
+    repo="/github.com/rakutentech/BayesianExperiments.jl/"
+)
