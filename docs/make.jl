@@ -16,5 +16,6 @@ makedocs(
 )
 
 deploydocs(;
-    repo="/github.com/rakutentech/BayesianExperiments.jl/"
+    repo="/github.com/rakutentech/BayesianExperiments.jl/",
+    devbranch = "main"
 )
