@@ -147,16 +147,20 @@ sample_stats(model, numsamples)   # sampling statistics from the data generating
 
 - The update rule for Normal distribution is based on this [lecture notes](https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/other-readings/chapter9.pdf).
 """
-mutable struct NormalModel{T <: Real} <: ConjugateModel
-    dist::NormalInverseGamma{T}
-    function NormalModel{T}(μ::T, v::T, α::T, θ::T) where T <: Real
+mutable struct NormalModel{S} <: ConjugateModel
+    dist::S
+    function NormalModel{Normal}(μ::T, σ::T) where T <: Real
+        new(Normal{T}(μ, σ))
+    end
+    function NormalModel{NormalInverseGamma}(μ::T, v::T, α::T, θ::T) where T <: Real
         new(NormalInverseGamma{T}(μ, v, α, θ))
     end
 end
 
-NormalModel(μ::T, v::T, α::T, θ::T) where T <: Real = NormalModel{T}(μ, v, α, θ)
+NormalModel(μ::T, v::T, α::T, θ::T) where T <: Real = NormalModel{NormalInverseGamma}(μ, v, α, θ)
+NormalModel(μ::T, σ::T) where T <: Real = NormalModel{Normal}(μ, σ)
 
-getdefaultparams(::NormalModel) = [:μ]
+getdefaultparams(::NormalModel{NormalInverseGamma}) = [:μ]
 
 """
     LogNormalModel(μ, v, α, θ)
@@ -175,14 +179,14 @@ sample_stats(model, numsamples)    # sampling statistics from the data generatin
 ```
 
 """
-mutable struct LogNormalModel{T <: Real} <: ConjugateModel
-    dist::NormalInverseGamma{T}
-    function LogNormalModel{T}(μ::T, v::T, α::T, θ::T) where T <: Real
+mutable struct LogNormalModel{S} <: ConjugateModel
+    dist::S
+    function LogNormalModel{NormalInverseGamma}(μ::T, v::T, α::T, θ::T) where T <: Real
         new(NormalInverseGamma{T}(μ, v, α, θ))
     end
 end
 
-LogNormalModel(μ::T, v::T, α::T, θ::T) where T <: Real = LogNormalModel{T}(μ, v, α, θ)
+LogNormalModel(μ::T, v::T, α::T, θ::T) where T <: Real = LogNormalModel{NormalInverseGamma}(μ, v, α, θ)
 
 function tolognormalparams(μ_logx, σ²_logx) 
     μ_x  = @. exp(μ_logx + σ²_logx / 2)
@@ -190,9 +194,9 @@ function tolognormalparams(μ_logx, σ²_logx)
     (μ_x, σ²_x)
 end
 
-getdefaultparams(mdoel::LogNormalModel) = [:μ_x]
+getdefaultparams(::LogNormalModel{NormalInverseGamma}) = [:μ_x]
 
-function update!(model::Union{NormalModel,LogNormalModel}, 
+function update!(model::Union{NormalModel{NormalInverseGamma},LogNormalModel{NormalInverseGamma}}, 
         stats::Union{NormalStatistics,LogNormalStatistics})
     n, x̄, sdx = getstats(stats)
     ΣΔx² = sdx^2 * (n - 1)
@@ -268,12 +272,12 @@ function sample_post(model::ExponentialModel, numsamples::Int)
     ExponentialPosteriorSample(θs)
 end
 
-function sample_post(model::NormalModel, numsamples::Int) 
+function sample_post(model::NormalModel{NormalInverseGamma}, numsamples::Int) 
     μ, σ² = rand(model.dist, numsamples)
     NormalPosteriorSample(μ, σ²)
 end
 
-function sample_post(model::LogNormalModel, numsamples::Int)
+function sample_post(model::LogNormalModel{NormalInverseGamma}, numsamples::Int)
     # sample for normal means and variances
     μ_logx, σ²_logx = rand(model.dist, numsamples)
     μ_x, σ²_x = tolognormalparams(μ_logx, σ²_logx)
@@ -326,11 +330,11 @@ function sample_stats(::ExponentialModel, dist::Exponential, numsamples::Integer
     ExponentialStatistics(rand(dist, numsamples))
 end
 
-function sample_stats(::NormalModel, dist::Normal, numsamples::Integer)
+function sample_stats(::NormalModel{NormalInverseGamma}, dist::Normal, numsamples::Integer)
     NormalStatistics(rand(dist, numsamples))
 end
 
-function sample_stats(::LogNormalModel, dist::LogNormal, numsamples::Integer)
+function sample_stats(::LogNormalModel{NormalInverseGamma}, dist::LogNormal, numsamples::Integer)
     LogNormalStatistics(rand(dist, numsamples))
 end
 

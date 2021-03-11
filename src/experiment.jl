@@ -46,7 +46,7 @@ function ExperimentAB(models, rule::T; modelnames=nothing) where T <: StoppingRu
     ExperimentABN{T,2}(models, rule, modelnames=modelnames)
 end
 
-function Base.show(io::IO, experiment::Experiment)
+function Base.show(io::IO, experiment::ExperimentABN)
     modelinfo = ""
     for (i, modelname) in enumerate(experiment.modelnames)
         modelinfo = string(modelinfo, "  \"", modelname, "\": ", experiment.models[modelname])
@@ -57,7 +57,7 @@ function Base.show(io::IO, experiment::Experiment)
     print(io, typeof(experiment), "\n", modelinfo)
 end
 
-function update!(experiment::Experiment, 
+function update!(experiment::ExperimentABN, 
                  listofstats::Union{Vector{T},Vector{Vector{T}}}) where T <: ModelStatistics
     for (i, stats) in enumerate(listofstats)
         modelname = experiment.modelnames[i]
@@ -66,7 +66,7 @@ function update!(experiment::Experiment,
     nothing
 end
 
-function update!(experiment::Experiment, 
+function update!(experiment::ExperimentABN, 
     modelname::String, stats::Union{T,Vector{T}}) where T <: ModelStatistics
     model = experiment.models[modelname]
     update!(model, stats)
@@ -77,9 +77,18 @@ function calcexpectedloss(sampleA, sampleB, lossfunc, numsamples)
     sum(lossfunc(sampleA, sampleB)) / numsamples
 end
 
-function getdefaultparams(experiment::Experiment)
+function getdefaultparams(experiment::ExperimentABN)
     model1 = [model for (modelname, model) in experiment.models][1]
     getdefaultparams(model1)
+end
+
+mutable struct BayesFactorExperiment{M} <: Experiment
+    model::M
+    x̄::Float64
+    n::Integer
+    rule::BayesFactorThresh
+    modelnames::Vector{String}
+    rejection::Bool
 end
 
 """
@@ -189,12 +198,21 @@ function calculatemetrics(experiment::ExperimentABN{ProbabilityBeatAllThresh,n},
     maxindex, probabilities
 end
 
-function calculatemetrics(experiment::Experiment; numsamples=10_000)
+function calculatemetrics(experiment::ExperimentABN; numsamples=10_000)
     parameters = getdefaultparams(experiment)
     calculatemetrics(experiment, parameters, numsamples=numsamples)
 end
 
-function selectwinner!(experiment::Experiment, parameters::Vector{Symbol}; numsamples=10_000)
+function calculatemetrics(experiment::BayesFactorExperiment; numsamples=10_000)
+    experiment.n > 0 || error("The experiment has no data.")
+    x̄ = experiment.x̄
+    σ0 = experiment.σ0
+    n = experiment.n 
+    bayesfactor = pdf(Normal(0, sqrt(σ0^2+1/n)), x̄)/pdf(Normal(0, sqrt(1/n)), x̄)
+    bayesfactor
+end
+
+function decide!(experiment::ExperimentABN, parameters::Vector{Symbol}; numsamples=10_000)
     winnerindex, winnermetric = calculatemetrics(experiment, parameters::Vector{Symbol}, numsamples=numsamples)
     experiment.winner = nothing
     if checkrule(experiment.rule, winnermetric[winnerindex])
@@ -203,7 +221,19 @@ function selectwinner!(experiment::Experiment, parameters::Vector{Symbol}; numsa
     experiment.winner
 end
 
-function selectwinner!(experiment::Experiment; numsamples=10_000)
+function decide!(experiment::ExperimentABN; numsamples=10_000)
     parameters = getdefaultparams(experiment)
-    selectwinner!(experiment, parameters, numsamples=numsamples)
+    decide!(experiment, parameters, numsamples=numsamples)
+end
+
+function decide!(experiment::BayesFactorExperiment; numsamples=10_000)
+    modelnames = experiment.modelnames
+    bayesfactor = calculatemetrics(experiment, numsamples=numsamples)
+    threshold = experiment.rule.threshold
+    if bayesfactor > threshold 
+        experiment.rejection = true
+    else
+        experiment.rejection = false
+    end
+    experiment.rejection
 end

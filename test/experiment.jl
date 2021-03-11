@@ -98,6 +98,6 @@ end
             @test expected_losses[2] ≈ 0
         end
 
-        @test selectwinner!(experiment) == "variant 1"
+        @test decide!(experiment) == "variant 1"
     end
 end

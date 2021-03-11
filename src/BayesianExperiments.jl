@@ -47,7 +47,7 @@ export Experiment,
     ChainedModel, 
 
     update!,
-    selectwinner!, 
+    decide!, 
 
     ExpectedLossThresh, 
     ProbabilityBeatAllThresh,

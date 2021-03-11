@@ -72,7 +72,7 @@ function runonce(simulation::Simulation, numsamples::Integer)
         if runnum < simulation.minsteps
             continue
         else
-            winner = selectwinner!(experiment, simulation.parameters, numsamples=numsamples)
+            winner = decide!(experiment, simulation.parameters, numsamples=numsamples)
         end
     end
     metricvals, winner

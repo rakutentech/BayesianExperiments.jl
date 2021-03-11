@@ -38,3 +38,7 @@ is larger than the alternative models is above the threshold.
 struct ProbabilityBeatAllThresh <: StoppingRule
     threshold::Float64
 end
+
+struct BayesFactorThresh <: StoppingRule
+    threshold::Float64
+end
