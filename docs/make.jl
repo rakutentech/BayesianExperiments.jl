@@ -18,5 +18,6 @@ makedocs(
 
 deploydocs(
     repo="github.com/rakutentech/BayesianExperiments.jl.git",
+    devbranch = "main",
     versions = ["stable" => "v^", "v#.#", "dev" => "main"]
 )
