@@ -1,9 +1,10 @@
 using Documenter, BayesianExperiments
 
 makedocs(
-    modules=[BayesianExperiments],
     sitename="BayesianExperiments.jl",
+    modules=[BayesianExperiments],
     authors = "Jiangtao Fu",
+    doctest = false,
     pages = [
         "Home" => "index.md",
         "Getting Started" => "basic_examples.md",
@@ -15,7 +16,7 @@ makedocs(
     ]
 )
 
-deploydocs(;
-    repo="/github.com/rakutentech/BayesianExperiments.jl/",
-    devbranch = "main"
+deploydocs(
+    repo="github.com/rakutentech/BayesianExperiments.jl.git",
+    versions = ["stable" => "v^", "v#.#", "dev" => "main"]
 )
