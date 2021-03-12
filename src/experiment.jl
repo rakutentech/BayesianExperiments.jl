@@ -83,9 +83,8 @@ function getdefaultparams(experiment::ExperimentABN)
 end
 
 mutable struct BayesFactorExperiment{M} <: Experiment
-    model::M
-    x̄::Float64
-    n::Integer
+    model::M                   # prior of effect size of alternative model 
+    p0::Float64                # probablity of null hypothesis
     rule::BayesFactorThresh
     modelnames::Vector{String}
     rejection::Bool
