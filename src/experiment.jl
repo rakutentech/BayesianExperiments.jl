@@ -84,12 +84,17 @@ end
 
 mutable struct BayesFactorExperiment{M} <: Experiment
     model::M                   # prior of effect size of alternative model 
-    stats::ModelStatistics     # statistics for calculating the bayes factor
+    stats::Union{ModelStatistics, Nothing} # statistics for calculating the bayes factor
     p0::Float64                # probablity of null hypothesis
     rejection::Bool            # decision to reject the null hypothesis or not
     rule::BayesFactorThresh    # stopping rule, threshold by Bayes Factor 
     modelnames::Vector{String} # model names
+    function BayesFactorExperiment(;
+        model::M, p0, rule, stats=nothing, modelnames=["control", "alternative"]) where M
+        new{M}(model, stats, p0, false, rule, modelnames)
+    end
 end
+
 
 """
     apprexpectedloss(modelA, modelB; lossfunc, numsamples)
@@ -203,11 +208,12 @@ function calculatemetrics(experiment::ExperimentABN; numsamples=10_000)
     calculatemetrics(experiment, parameters, numsamples=numsamples)
 end
 
-function calculatemetrics(experiment::BayesFactorExperiment; numsamples=10_000)
-    experiment.n > 0 || error("The experiment has no data.")
-    x̄ = experiment.x̄
-    σ0 = experiment.σ0
-    n = experiment.n 
+function calculatemetrics(experiment::BayesFactorExperiment{NormalModel{Normal}})
+    (experiment.stats !== nothing && experiment.stats.n > 0) || 
+        error("The experiment has no data.")
+    x̄ = experiment.stats.meanx
+    n = experiment.stats.n 
+    σ0 = experiment.model.dist.σ
     bayesfactor = pdf(Normal(0, sqrt(σ0^2+1/n)), x̄)/pdf(Normal(0, sqrt(1/n)), x̄)
     bayesfactor
 end

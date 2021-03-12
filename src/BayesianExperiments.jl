@@ -4,9 +4,9 @@ import Base:show
 import Base.convert
 import Statistics: mean, rand, std
 using Distributions: 
-    Beta, Gamma, LogNormal, Bernoulli, Exponential, 
-    ContinuousUnivariateDistribution, InverseGamma, Normal,
-    UnivariateDistribution
+    pdf, 
+    Beta, Gamma, LogNormal, Bernoulli, Exponential, InverseGamma, Normal,
+    ContinuousUnivariateDistribution, UnivariateDistribution
 
 include("util.jl")
 include("data.jl")
@@ -19,6 +19,7 @@ include("simulation.jl")
 export Experiment,
     ExperimentABN,
     ExperimentAB,
+    BayesFactorExperiment,
 
     Bernoulli,
     Exponential,
@@ -51,6 +52,7 @@ export Experiment,
 
     ExpectedLossThresh, 
     ProbabilityBeatAllThresh,
+    BayesFactorThresh,
 
     apprexpectedloss,
     apprexpectedlosses, 
