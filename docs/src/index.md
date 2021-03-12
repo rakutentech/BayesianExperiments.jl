@@ -2,7 +2,7 @@
 
 This is the documentation of `BayesianExperiments.jl`, a library for conducting Bayesian AB testing in Julia.
 
-Current features includes:
+Current features include:
 
 - Conjugate prior models for distributions including Bernoulli, Normal, LogNormal, Exponential, etc.
 - Basic models can be chained to model multiple steps process.
