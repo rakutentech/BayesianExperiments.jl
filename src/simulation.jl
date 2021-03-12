@@ -67,7 +67,7 @@ function runonce(simulation::Simulation, numsamples::Integer)
     while experiment.winner === nothing && runnum < simulation.maxsteps
         runnum += 1
         updateonce!(simulation)
-        _, metricval = calculatemetrics(experiment, simulation.parameters, numsamples=numsamples)
+        _, metricval = getmetrics(experiment, simulation.parameters, numsamples=numsamples)
         push!(metricvals, metricval)
         if runnum < simulation.minsteps
             continue

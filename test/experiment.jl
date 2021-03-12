@@ -8,8 +8,8 @@ include("utils.jl")
         n = 5
         sampleA = [1, 1, 1, 0, 0]
         sampleB = [1, 0, 0, 1, 0]
-        @test calcexpectedloss(sampleA, sampleB, upliftloss, 5) == 0.2
-        @test calcexpectedloss(sampleB, sampleA, upliftloss, 5) == 0.4
+        @test getexpectedloss(sampleA, sampleB, upliftloss, 5) == 0.2
+        @test getexpectedloss(sampleB, sampleA, upliftloss, 5) == 0.4
     end
 
     @testset "Approximate expected loss from posteriors" begin
@@ -18,10 +18,10 @@ include("utils.jl")
         modelA = BernoulliModel(50, 50)
         modelB = BernoulliModel(60, 40)
 
-        exploss = apprexpectedloss(modelA, modelB, [:θ], lossfunc=upliftloss, numsamples=n)
+        exploss = getexpectedloss(modelA, modelB, [:θ], lossfunc=upliftloss, numsamples=n)
         @test isapprox(exploss, 0.1, atol=0.01)
 
-        exploss = apprexpectedloss(modelB, modelA, [:θ], lossfunc=upliftloss, numsamples=n)
+        exploss = getexpectedloss(modelB, modelA, [:θ], lossfunc=upliftloss, numsamples=n)
         @test isapprox(exploss, 0.0, atol=0.01)
     end
 
@@ -31,13 +31,13 @@ include("utils.jl")
         modelA = BernoulliModel(50, 50)
         modelB = BernoulliModel(60, 40)
 
-        exploss = apprexpectedloss(modelA, modelB, lossfunc=upliftloss, numsamples=n)
+        exploss = getexpectedloss(modelA, modelB, lossfunc=upliftloss, numsamples=n)
         @test isapprox(exploss, 0.1, atol=0.01)
 
         stoppingrule = ExpectedLossThresh(0.001)
         experiment = ExperimentAB([modelA, modelB], stoppingrule)
 
-        (modelnames, expectedlosses) = apprexpectedlosses(experiment, lossfunc=upliftloss, numsamples=n)
+        (modelnames, expectedlosses) = getexpectedlosses(experiment, lossfunc=upliftloss, numsamples=n)
 
         @test modelnames == ["control", "variant 1"]
         @test isapprox(expectedlosses[1], 0.1, atol=0.01)
@@ -69,18 +69,18 @@ end
 
         modelA = ChainedModel(
             [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
-            [ChainOperator.multiply]
+            [op_multiply]
         )
         modelB = ChainedModel(
             [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
-            [ChainOperator.multiply]
+            [op_multiply]
         )
 
         stoppingrule = ExpectedLossThresh(0.001)
         experiment = ExperimentAB([modelA, modelB], stoppingrule)
         update!(experiment, [[statsA1, statsA2], [statsB1, statsB2]])
 
-        modelnames, expected_losses = apprexpectedlosses(experiment)
+        modelnames, expected_losses = getexpectedlosses(experiment)
 
         @testset "Control Group" begin
             model1_list = experiment.models["control"].models

@@ -97,11 +97,11 @@ statsB2 = LogNormalStatistics(dataB2)
 # Setup the experiment
 modelA = ChainedModel(
     [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
-    [ChainOperator.multiply]
+    [op_multiply]
 )
 modelB = ChainedModel(
     [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
-    [ChainOperator.multiply]
+    [op_multiply]
 )
 
 # Choose the stopping rule
