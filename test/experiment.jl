@@ -101,3 +101,21 @@ end
         @test decide!(experiment) == "variant 1"
     end
 end
+
+@testset "BayesFactorExperiment" begin
+
+    @testset "Normal Statistics batch update" begin
+        Random.seed!(12)
+        data1 = rand(Normal(0.01, 1), 100_000)
+        data2 = rand(Normal(0.03, 2), 100_000);
+        s1 = NormalStatistics(data1)
+        s2 = NormalStatistics(data2)
+        stats1 = update!(s1, s2)
+        stats2 = NormalStatistics([data1;data2])
+
+        @test stats1.n == stats2.n
+        @test isapprox(stats1.meanx, stats2.meanx, atol=0.0001)
+        @test isapprox(stats1.sdx, stats2.sdx, atol=0.0001)
+    end
+
+end
