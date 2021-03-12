@@ -84,10 +84,11 @@ end
 
 mutable struct BayesFactorExperiment{M} <: Experiment
     model::M                   # prior of effect size of alternative model 
+    stats::ModelStatistics     # statistics for calculating the bayes factor
     p0::Float64                # probablity of null hypothesis
-    rule::BayesFactorThresh
-    modelnames::Vector{String}
-    rejection::Bool
+    rejection::Bool            # decision to reject the null hypothesis or not
+    rule::BayesFactorThresh    # stopping rule, threshold by Bayes Factor 
+    modelnames::Vector{String} # model names
 end
 
 """
