@@ -35,7 +35,7 @@ export
     Experiment,
     ExperimentABN,
     ExperimentAB,
-    BayesFactorExperiment,
+    ExperimentBF,
 
     expectedloss,
     expectedlosses, 

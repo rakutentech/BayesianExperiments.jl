@@ -100,7 +100,7 @@ end
     end
 end
 
-@testset "BayesFactorExperiment" begin
+@testset "ExperimentBF" begin
 
     @testset "Normal Statistics batch update" begin
         Random.seed!(12)
