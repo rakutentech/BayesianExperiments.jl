@@ -67,11 +67,11 @@ for _ = 1:max_days
     
     # calculate the metrics (expected loss)
     # this step is optional, for visualization below
-    _, losses = calculatemetrics(experiment)
+    _, losses = metrics(experiment)
     push!(expected_losses, losses)
     
     # select winner, get "nothing" if there is no winner
-    winner = selectwinner!(experiment)
+    winner = decide!(experiment)
     
     # stop the experiment if we already find a winner
     if winner !== nothing

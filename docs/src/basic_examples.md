@@ -28,10 +28,10 @@ statsB = BernoulliStatistics(dataB)
 update!(experiment, [statsA, statsB])
 
 # Calculate the metric (expected loss in this case) of each model 
-winner_index, expected_losses = calculatemetrics(experiment)
+winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = selectwinner!(experiment)
+winner = decide!(experiment)
 ```
 
 ## Example: Three Models
@@ -67,10 +67,10 @@ statsC = BernoulliStatistics(dataC)
 update!(experiment, [statsA, statsB, statsC])
 
 # Calculate the metric (expected loss in this case) of each model 
-winner_index, expected_losses = calculatemetrics(experiment)
+winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = selectwinner!(experiment)
+winner = decide!(experiment)
 ```
 
 ## Example: Chained Models
@@ -114,10 +114,10 @@ experiment = ExperimentAB([modelA, modelB], stoppingrule)
 update!(experiment, [[statsA1, statsA2], [statsB1, statsB2]])
 
 # Calculate the metric (expected loss in this case) of each model 
-winner_index, expected_losses = calculatemetrics(experiment)
+winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = selectwinner!(experiment))
+winner = decide!(experiment))
 ```
 
 ## Example: Power Analysis

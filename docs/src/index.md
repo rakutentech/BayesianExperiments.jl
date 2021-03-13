@@ -52,5 +52,5 @@ statsB = BernoulliStatistics(dataB)
 update!(experiment, [statsA, statsB])
 
 # Calculate the metric (expected loss in this case) of each model 
-winner_index, expected_losses = calculatemetrics(experiment)
+winner_index, expected_losses = metrics(experiment)
 ```

@@ -7,7 +7,7 @@ with the inner array as rows.
 unnest(arr) = vcat(transpose(arr)...);
 
 """
-    converttoparameter(parameters)
+    toparameter(parameters)
 
 Convert a parameter vector of length 1 to a single parameter.
 """

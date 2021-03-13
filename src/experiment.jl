@@ -92,11 +92,11 @@ mutable struct BayesFactorExperiment{M} <: Experiment
 end
 
 """
-    apprexpectedloss(modelA, modelB; lossfunc, numsamples)
+    expectedloss(modelA, modelB; lossfunc, numsamples)
 
 Approximating the expected loss for choosing model A over model B.
 
-    apprexpectedlosses(experiment::ExperimentABN; lossfunc, numsamples)
+    expectedlosses(experiment::ExperimentABN; lossfunc, numsamples)
 
 Approximating the expected loss for all models in the experiment. 
 For A/B/N experiment, the expected loss for each model is the maximum of the losses 
@@ -183,8 +183,9 @@ end
 function checkrule(stoppingrule::ProbabilityBeatAllThresh, decisionvalue)
     return decisionvalue > stoppingrule.threshold
 end
+
 """
-    calculatemetrics(experiment, parameters, numsamples)
+    metrics(experiment, parameters, numsamples)
 
 Returns the winner's index and metrics.
 """
