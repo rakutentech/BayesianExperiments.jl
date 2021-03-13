@@ -79,15 +79,40 @@ function defaultparams(experiment::ExperimentABN)
     return defaultparams(model1)
 end
 
+"""
+    BayesFactorExperiment{M} <: Experiment
+
+`BayesFactorExperiment` is an experiment using a Bayes Factor between the 
+null and alternative hypothesis as the stopping rule.
+
+# Constructors
+
+    BayesFactorExperiment(model, p0, rule; kwargs...)
+
+## Arguments
+
+- `model::M`: Prior of effect size of alternative hypothesis 
+- `p0::Float64`: Probablity of null hypothesis
+- `rejection::Bool`: Decision to reject the null hypothesis or not
+- `rule::BayesFactorThresh`: Stopping rule using Bayes Factor as the threshold
+
+## Keywords
+
+- `stats`: Statistics for calculating the bayes factor. Default is `nothing`.
+- `names`: Names of the hypotheses. Default is `["null", "alternative"]`.
+
+"""
 mutable struct BayesFactorExperiment{M} <: Experiment
     model::M                   # prior of effect size of alternative model 
-    stats::Union{ModelStatistics, Nothing} # statistics for calculating the bayes factor
     p0::Float64                # probablity of null hypothesis
     rejection::Bool            # decision to reject the null hypothesis or not
     rule::BayesFactorThresh    # stopping rule, threshold by Bayes Factor 
-    modelnames::Vector{String} # model names
-    function BayesFactorExperiment(model::M, p0, rule, stats=nothing, modelnames=["control", "alternative"]) where M
-        return new{M}(model, stats, p0, false, rule, modelnames)
+    stats::Union{ModelStatistics, Nothing} # statistics for calculating the bayes factor
+    names::Vector{String} 
+
+    function BayesFactorExperiment(;
+        model::M, p0, rule, stats=nothing, names=["null", "alternative"]) where M
+        return new{M}(model, p0, false, rule, stats, names)
     end
 end
 
@@ -187,7 +212,7 @@ end
 """
     metrics(experiment, parameters, numsamples)
 
-Returns the winner's index and metrics.
+Returns the winner's index and key metrics of the experiment.
 """
 function metrics(experiment::ExperimentABN{ExpectedLossThresh,n}, 
     parameters::Vector{Symbol}; numsamples=10_000) where n
@@ -218,6 +243,11 @@ function metrics(experiment::BayesFactorExperiment{NormalModel{Normal}})
     return bayesfactor
 end
 
+"""
+    decide!(experiment; numsamples=10_000)
+
+Make decision based on an experiment result and its stopping rule.
+"""
 function decide!(experiment::ExperimentABN, parameters::Vector{Symbol}; numsamples=10_000)
     winnerindex, winnermetric = metrics(experiment, parameters::Vector{Symbol}, numsamples=numsamples)
     experiment.winner = nothing
@@ -233,7 +263,6 @@ function decide!(experiment::ExperimentABN; numsamples=10_000)
 end
 
 function decide!(experiment::BayesFactorExperiment; numsamples=10_000)
-    modelnames = experiment.modelnames
     bayesfactor = metrics(experiment, numsamples=numsamples)
     threshold = experiment.rule.threshold
     if bayesfactor > threshold 

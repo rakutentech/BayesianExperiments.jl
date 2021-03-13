@@ -154,7 +154,7 @@ samplestats(model, numsamples)   # sampling statistics from the data generating 
 mutable struct NormalModel{S} <: ConjugateModel
     dist::S
     function NormalModel{Normal}(μ::Real, σ::Real)
-        T = promote(typeof(μ), typeof(σ))
+        T = promote_type(typeof(μ), typeof(σ))
         return new(Normal{T}(μ, σ))
     end
     function NormalModel{NormalInverseGamma}(μ::Real, v::Real, α::Real, θ::Real)
