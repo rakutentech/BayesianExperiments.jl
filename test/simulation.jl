@@ -57,11 +57,9 @@ using BayesianExperiments
 
         modelA = ChainedModel(
             [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
-            [op_multiply]
         )
         modelB = ChainedModel(
             [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
-            [op_multiply]
         )
 
         stoppingrule = ExpectedLossThresh(0.1)

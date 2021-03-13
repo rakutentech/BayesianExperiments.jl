@@ -28,7 +28,7 @@ struct Simulation
         maxsteps, onestepsizes, minsteps=0, parameters::Union{Vector{Symbol},Nothing}=nothing)
         minsteps <= maxsteps || error("maxsteps should be equal or larger than minsteps")
         if parameters === nothing
-            return new(experiment, getdefaultparams(experiment), datagendists, maxsteps, onestepsizes, minsteps)
+            return new(experiment, defaultparams(experiment), datagendists, maxsteps, onestepsizes, minsteps)
         else
             return new(experiment, parameters, datagendists, maxsteps, onestepsizes, minsteps)
         end
@@ -51,7 +51,7 @@ function updateonce!(experiment::Experiment, datagendists, onestepsizes)
         error("Number of one step sizes should be equal to number of data gen distributions.")
     for (modelname, datagendist, onestepsize) in zip(experiment.modelnames, datagendists, onestepsizes)
         model = experiment.models[modelname]
-        stats = sample_stats(model, datagendist, onestepsize)
+        stats = samplestats(model, datagendist, onestepsize)
         update!(experiment, modelname, stats)
     end
     nothing
@@ -67,7 +67,7 @@ function runonce(simulation::Simulation, numsamples::Integer)
     while experiment.winner === nothing && runnum < simulation.maxsteps
         runnum += 1
         updateonce!(simulation)
-        _, metricval = getmetrics(experiment, simulation.parameters, numsamples=numsamples)
+        _, metricval = metrics(experiment, simulation.parameters, numsamples=numsamples)
         push!(metricvals, metricval)
         if runnum < simulation.minsteps
             continue

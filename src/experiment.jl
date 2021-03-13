@@ -74,9 +74,9 @@ function update!(experiment::ExperimentABN,
 end
 
 
-function getdefaultparams(experiment::ExperimentABN)
+function defaultparams(experiment::ExperimentABN)
     model1 = [model for (modelname, model) in experiment.models][1]
-    return getdefaultparams(model1)
+    return defaultparams(model1)
 end
 
 mutable struct BayesFactorExperiment{M} <: Experiment
@@ -102,27 +102,27 @@ Approximating the expected loss for all models in the experiment.
 For A/B/N experiment, the expected loss for each model is the maximum of the losses 
 by comparing that model to all the other models.
 """
-function getexpectedloss(modelA::T, modelB::T, parameters; 
+function expectedloss(modelA::T, modelB::T, parameters; 
     lossfunc=upliftloss, numsamples=10_000) where T <: ProbabilisticModel
-    sampleA = sample_post(modelA, parameters, numsamples)
-    sampleB = sample_post(modelB, parameters, numsamples)
+    sampleA = samplepost(modelA, parameters, numsamples)
+    sampleB = samplepost(modelB, parameters, numsamples)
     length(sampleA) == length(sampleB) || 
         throw(ArgumentError("Approximating expected loss requires equal length."))
-    losschooseA = getexpectedloss(sampleA, sampleB, lossfunc, numsamples) 
+    losschooseA = expectedloss(sampleA, sampleB, lossfunc, numsamples) 
     return losschooseA
 end
 
-function getexpectedloss(modelA::T, modelB::T; lossfunc=upliftloss, 
+function expectedloss(modelA::T, modelB::T; lossfunc=upliftloss, 
         numsamples=10_000) where T <: ProbabilisticModel
-    parameters = getdefaultparams(modelA) 
-    return getexpectedloss(modelA, modelB, parameters, lossfunc=lossfunc, numsamples=numsamples)
+    parameters = defaultparams(modelA) 
+    return expectedloss(modelA, modelB, parameters, lossfunc=lossfunc, numsamples=numsamples)
 end
 
-function getexpectedloss(sampleA::Vector{T}, sampleB::Vector{T}, lossfunc, numsamples) where T<:Real
+function expectedloss(sampleA::Vector{T}, sampleB::Vector{T}, lossfunc, numsamples) where T<:Real
     return sum(lossfunc(sampleA, sampleB)) / numsamples
 end
 
-function getexpectedlosses(experiment::ExperimentABN{ExpectedLossThresh,n}, 
+function expectedlosses(experiment::ExperimentABN{ExpectedLossThresh,n}, 
     parameters::Vector{Symbol}; lossfunc=upliftloss, numsamples=10_000) where n
     modelnames = experiment.modelnames
     expectedlosses = Vector{Float64}()
@@ -135,7 +135,7 @@ function getexpectedlosses(experiment::ExperimentABN{ExpectedLossThresh,n},
                 continue
             end
             compmodel = experiment.models[compmodelname]
-            loss = getexpectedloss(
+            loss = expectedloss(
                 refmodel, compmodel, parameters; lossfunc=lossfunc, numsamples=numsamples)
             if loss > maxloss
                 maxloss = loss
@@ -146,17 +146,17 @@ function getexpectedlosses(experiment::ExperimentABN{ExpectedLossThresh,n},
     return (modelnames, expectedlosses)
 end
 
-function getexpectedlosses(experiment::ExperimentABN{ExpectedLossThresh,n}; 
+function expectedlosses(experiment::ExperimentABN{ExpectedLossThresh,n}; 
     lossfunc=upliftloss, numsamples=10_000) where n
-    parameters = getdefaultparams(experiment) 
-    return getexpectedlosses(experiment, parameters, lossfunc=lossfunc, numsamples=numsamples)
+    parameters = defaultparams(experiment) 
+    return expectedlosses(experiment, parameters, lossfunc=lossfunc, numsamples=numsamples)
 end
 
-function getprobbeatall(experiment::ExperimentABN{ProbabilityBeatAllThresh,n}, 
+function probbeatall(experiment::ExperimentABN{ProbabilityBeatAllThresh,n}, 
     parameters::Vector{Symbol}; numsamples=10_000) where n
     modelnames = experiment.modelnames
     models = [experiment.models[modelname] for modelname in modelnames]
-    samples = sample_post(models, parameters, numsamples)
+    samples = samplepost(models, parameters, numsamples)
     probsbeatall = Vector{Float64}(undef, length(modelnames))
     for refmodelindex = 1:length(modelnames)
         refsample = samples[:, refmodelindex]
@@ -170,9 +170,9 @@ function getprobbeatall(experiment::ExperimentABN{ProbabilityBeatAllThresh,n},
     return (modelnames, probsbeatall)
 end
 
-function getprobbeatall(experiment::ExperimentABN{ProbabilityBeatAllThresh,n}; numsamples=10_000) where n
-    parameters = getdefaultparams(experiment)
-    return getprobbeatall(experiment, parameters, numsamples=numsamples)
+function probbeatall(experiment::ExperimentABN{ProbabilityBeatAllThresh,n}; numsamples=10_000) where n
+    parameters = defaultparams(experiment)
+    return probbeatall(experiment, parameters, numsamples=numsamples)
 end
 
 # Stopping rule check functions
@@ -188,26 +188,26 @@ end
 
 Returns the winner's index and metrics.
 """
-function getmetrics(experiment::ExperimentABN{ExpectedLossThresh,n}, 
+function metrics(experiment::ExperimentABN{ExpectedLossThresh,n}, 
     parameters::Vector{Symbol}; numsamples=10_000) where n
-    modelnames, expectedlosses = getexpectedlosses(experiment, parameters, numsamples=numsamples)
-    minindex = argmin(expectedlosses)
-    return (minindex, expectedlosses)
+    modelnames, explosses = expectedlosses(experiment, parameters, numsamples=numsamples)
+    minindex = argmin(explosses)
+    return (minindex, explosses)
 end
 
-function getmetrics(experiment::ExperimentABN{ProbabilityBeatAllThresh,n}, 
+function metrics(experiment::ExperimentABN{ProbabilityBeatAllThresh,n}, 
     parameters::Vector{Symbol}; numsamples=10_000) where n
-    modelnames, probabilities = getprobbeatall(experiment, parameters, numsamples=numsamples)
+    modelnames, probabilities = probbeatall(experiment, parameters, numsamples=numsamples)
     maxindex = argmax(probabilities)
     return (maxindex, probabilities)
 end
 
-function getmetrics(experiment::ExperimentABN; numsamples=10_000)
-    parameters = getdefaultparams(experiment)
-    return getmetrics(experiment, parameters, numsamples=numsamples)
+function metrics(experiment::ExperimentABN; numsamples=10_000)
+    parameters = defaultparams(experiment)
+    return metrics(experiment, parameters, numsamples=numsamples)
 end
 
-function getmetrics(experiment::BayesFactorExperiment{NormalModel{Normal}})
+function metrics(experiment::BayesFactorExperiment{NormalModel{Normal}})
     (experiment.stats !== nothing && experiment.stats.n > 0) || 
         error("The experiment has no data.")
     x̄ = experiment.stats.meanx
@@ -218,7 +218,7 @@ function getmetrics(experiment::BayesFactorExperiment{NormalModel{Normal}})
 end
 
 function decide!(experiment::ExperimentABN, parameters::Vector{Symbol}; numsamples=10_000)
-    winnerindex, winnermetric = getmetrics(experiment, parameters::Vector{Symbol}, numsamples=numsamples)
+    winnerindex, winnermetric = metrics(experiment, parameters::Vector{Symbol}, numsamples=numsamples)
     experiment.winner = nothing
     if checkrule(experiment.rule, winnermetric[winnerindex])
         experiment.winner = experiment.modelnames[winnerindex] 
@@ -227,13 +227,13 @@ function decide!(experiment::ExperimentABN, parameters::Vector{Symbol}; numsampl
 end
 
 function decide!(experiment::ExperimentABN; numsamples=10_000)
-    parameters = getdefaultparams(experiment)
+    parameters = defaultparams(experiment)
     return decide!(experiment, parameters, numsamples=numsamples)
 end
 
 function decide!(experiment::BayesFactorExperiment; numsamples=10_000)
     modelnames = experiment.modelnames
-    bayesfactor = getmetrics(experiment, numsamples=numsamples)
+    bayesfactor = metrics(experiment, numsamples=numsamples)
     threshold = experiment.rule.threshold
     if bayesfactor > threshold 
         experiment.rejection = true

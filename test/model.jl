@@ -12,7 +12,7 @@ using Base.Iterators: partition
         model = BernoulliModel(1, 1)
         stats = BernoulliStatistics(s=sum(data), n=n)
         update!(model, stats)
-        posterior_samples = sample_post(model, 100_000)
+        posterior_samples = samplepost(model, 100_000)
         @test mean(posterior_samples.θ) ≈ 0.55
     end
 
@@ -53,7 +53,7 @@ end
         model = ExponentialModel(0.001, 1000)
         stats = ExponentialStatistics(n=n, x̄=mean(data))
         update!(model, stats)
-        posterior_samples = sample_post(model, 100_000)
+        posterior_samples = samplepost(model, 100_000)
         @test isapprox(mean(posterior_samples.θ), θ, atol=0.1) 
     end
 
@@ -96,7 +96,7 @@ end
         model = NormalModel(0.0, 1.0, 0.001, 0.001)
         stats = NormalStatistics(data)
         update!(model, stats)
-        posterior_samples = sample_post(model, 100_000)
+        posterior_samples = samplepost(model, 100_000)
         @test mean(posterior_samples.μ) ≈ μ 
         @test std(posterior_samples.μ) ≈ σ / sqrt(n)
     end
@@ -150,7 +150,7 @@ end
         @test isapprox(model.dist.α, 50000, rtol=0.01)
         @test isapprox(model.dist.θ, 40525, rtol=0.01)
         
-        posterior_samples = sample_post(model, 100_000)
+        posterior_samples = samplepost(model, 100_000)
         @test mean(posterior_samples.μ_logx) ≈ meanlogx
         @test mean(posterior_samples.σ²_logx) ≈ varlogx
         @test isapprox(mean(posterior_samples.μ_x), 1645, rtol=0.01)

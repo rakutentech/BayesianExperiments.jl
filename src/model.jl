@@ -72,8 +72,8 @@ Bernoulli likelihood with Beta distribution as the conjugate prior.
 BernoulliModel(α, β)              # construct a BernoulliModel
 
 update!(model, stats)             # update model with statistics from data
-sample_post(model, numsamples)    # sampling from the posterior distribution
-sample_stats(model, numsamples)   # sampling statistics from the data generating distribution
+samplepost(model, numsamples)    # sampling from the posterior distribution
+samplestats(model, numsamples)   # sampling statistics from the data generating distribution
 ```
 
 """
@@ -84,7 +84,7 @@ mutable struct BernoulliModel <: ConjugateModel
     end
 end
 
-getdefaultparams(::BernoulliModel) = [:θ]
+defaultparams(::BernoulliModel) = [:θ]
 
 function update!(model::BernoulliModel, stats::BernoulliStatistics)
     numsuccesses = stats.s 
@@ -104,8 +104,8 @@ Exponential likelihood with Gamma distribution as the conjugate prior.
 ExponentialModel(α, β)            # construct a ExponentialModel
 
 update!(model, stats)             # update model with statistics from data
-sample_post(model, numsamples)    # sampling from the posterior distribution
-sample_stats(model, numsamples)   # sampling statistics from the data generating distribution
+samplepost(model, numsamples)    # sampling from the posterior distribution
+samplestats(model, numsamples)   # sampling statistics from the data generating distribution
 ```
 """
 mutable struct ExponentialModel <: ConjugateModel
@@ -115,7 +115,7 @@ mutable struct ExponentialModel <: ConjugateModel
     end
 end
 
-getdefaultparams(::ExponentialModel) = [:θ]
+defaultparams(::ExponentialModel) = [:θ]
 
 function update!(model::ExponentialModel, stats::ExponentialStatistics)
     n = stats.n
@@ -143,8 +143,8 @@ conjugate prior.
 NormalModel(μ, v, α, θ)           # construct a NormalModel
 
 update!(model, stats)             # update model with statistics from data
-sample_post(model, numsamples)    # sampling from the posterior distribution
-sample_stats(model, numsamples)   # sampling statistics from the data generating distribution
+samplepost(model, numsamples)    # sampling from the posterior distribution
+samplestats(model, numsamples)   # sampling statistics from the data generating distribution
 ```
 
 ## References
@@ -165,7 +165,7 @@ end
 NormalModel(μ::T, v::T, α::T, θ::T) where T <: Real = NormalModel{NormalInverseGamma}(μ, v, α, θ)
 NormalModel(μ::T, σ::T) where T <: Real = NormalModel{Normal}(μ, σ)
 
-getdefaultparams(::NormalModel{NormalInverseGamma}) = [:μ]
+defaultparams(::NormalModel{NormalInverseGamma}) = [:μ]
 
 """
     LogNormalModel(μ, v, α, θ)
@@ -179,8 +179,8 @@ LogNormalModel(μ, v, α, θ) # construct a LogNormalModel
 
 lognormalparams(μ_logx, σ²_logx) # convert normal parameters to log-normal parameters
 update!(model, stats)              # update model with statistics from data
-sample_post(model, numsamples)     # sampling from the posterior distribution
-sample_stats(model, numsamples)    # sampling statistics from the data generating distributio
+samplepost(model, numsamples)     # sampling from the posterior distribution
+samplestats(model, numsamples)    # sampling statistics from the data generating distributio
 ```
 
 """
@@ -199,7 +199,7 @@ function lognormalparams(μ_logx, σ²_logx)
     return (μ_x, σ²_x)
 end
 
-getdefaultparams(::LogNormalModel{NormalInverseGamma}) = [:μ_x]
+defaultparams(::LogNormalModel{NormalInverseGamma}) = [:μ_x]
 
 function update!(model::Union{NormalModel{NormalInverseGamma},LogNormalModel{NormalInverseGamma}}, 
         stats::Union{NormalStatistics,LogNormalStatistics})
@@ -221,9 +221,10 @@ function update!(model::Union{NormalModel{NormalInverseGamma},LogNormalModel{Nor
     return nothing
 end
 
-# operator function
-op_multiply(a, b) = .*(a, b)
-op_divide(a, b) = ./(a, b)
+abstract type ChainOperator end
+
+struct MultiplyOperator <: ChainOperator end
+(m::MultiplyOperator)(a, b) = .*(a, b)
 
 """
     ChainedModel <: ProbabilisticModel
@@ -233,11 +234,16 @@ It can be used to model a multiple step process.
 """
 struct ChainedModel <: ProbabilisticModel
     models::Vector{ConjugateModel}
-    operators::Vector{Function}
+    operators::Vector{ChainOperator}
     function ChainedModel(models::Vector{ConjugateModel}, operators)
         length(models) - 1 == length(operators) || error("need to specify (number of model - 1) chaining operators")
         return new(models, operators)
     end
+end
+
+function ChainedModel(models::Vector{ConjugateModel})
+    operators = [MultiplyOperator() for _ in 1:(length(models) -1)]
+    return ChainedModel(models, operators)
 end
 
 function update!(chainedmodel::ChainedModel, listofstats::Vector{T}) where T <: ModelStatistics
@@ -250,24 +256,24 @@ function update!(chainedmodel::ChainedModel, listofstats::Vector{T}) where T <: 
 end
 
 
-function getdefaultparams(chainedmodel::ChainedModel) 
+function defaultparams(chainedmodel::ChainedModel) 
     params = Symbol[]
     for model in chainedmodel.models
-        push!(params, getdefaultparams(model)[1])
+        push!(params, defaultparams(model)[1])
     end
     return params
 end
 
 """
-    sample_post(model, numsamples)
+    samplepost(model, numsamples)
 
 Sample from the posterior distribution of the model.
 """
-function sample_post(model::BernoulliModel, numsamples::Int)
+function samplepost(model::BernoulliModel, numsamples::Int)
     return BernoulliPosteriorSample(rand(model.dist, numsamples))
 end
 
-function sample_post(model::ExponentialModel, numsamples::Int)
+function samplepost(model::ExponentialModel, numsamples::Int)
     # Gamma distribution generates the rate (λ) of Exponential distribution
     # convert it to scale θ to make it consistent with Distributions.jl
     λs = rand(model.dist, numsamples)
@@ -275,43 +281,43 @@ function sample_post(model::ExponentialModel, numsamples::Int)
     return ExponentialPosteriorSample(θs)
 end
 
-function sample_post(model::NormalModel{NormalInverseGamma}, numsamples::Int) 
+function samplepost(model::NormalModel{NormalInverseGamma}, numsamples::Int) 
     μ, σ² = rand(model.dist, numsamples)
     return NormalPosteriorSample(μ, σ²)
 end
 
-function sample_post(model::LogNormalModel{NormalInverseGamma}, numsamples::Int)
+function samplepost(model::LogNormalModel{NormalInverseGamma}, numsamples::Int)
     # sample for normal means and variances
     μ_logx, σ²_logx = rand(model.dist, numsamples)
     μ_x, σ²_x = lognormalparams(μ_logx, σ²_logx)
     return LogNormalPosteriorSample(μ_logx, σ²_logx, μ_x, σ²_x)
 end
 
-function sample_post(model::T, parameter::Symbol, numsamples::Int) where T <: ConjugateModel
-    samples = sample_post(model, numsamples)
+function samplepost(model::T, parameter::Symbol, numsamples::Int) where T <: ConjugateModel
+    samples = samplepost(model, numsamples)
     return getfield(samples, parameter)
 end
 
-function sample_post(model::T, parameters::Vector{Symbol}, numsamples::Int)  where T <: ConjugateModel
-    parameter = converttoparameter(parameters)
-    return sample_post(model, parameter, numsamples)
+function samplepost(model::T, parameters::Vector{Symbol}, numsamples::Int)  where T <: ConjugateModel
+    parameter = toparameter(parameters)
+    return samplepost(model, parameter, numsamples)
 end
 
-function sample_post(models::Vector{T}, parameters::Vector{Symbol}, numsamples::Int) where T <: ProbabilisticModel
+function samplepost(models::Vector{T}, parameters::Vector{Symbol}, numsamples::Int) where T <: ProbabilisticModel
     samples = Array{Float64,2}(undef, numsamples, length(models))
     for (modelindex, model) in enumerate(models)
-        sample = sample_post(model, parameters, numsamples)
+        sample = samplepost(model, parameters, numsamples)
         samples[:, modelindex] = sample
     end
     return samples
 end
 
-function sample_post(chainedmodel::ChainedModel, parameters::Vector{Symbol}, numsamples::Int)
+function samplepost(chainedmodel::ChainedModel, parameters::Vector{Symbol}, numsamples::Int)
     length(parameters) == length(chainedmodel.models) || 
         throw(ArgumentError("Number of parameters must be equal to number of chained models"))
     models = chainedmodel.models
     operators = chainedmodel.operators
-    post_samples = [sample_post(model, parameter, numsamples) for (model, parameter) in zip(models, parameters)]
+    post_samples = [samplepost(model, parameter, numsamples) for (model, parameter) in zip(models, parameters)]
     chainedsample = post_samples[1]
     for i = 2:length(post_samples)
         chainedsample = operators[i - 1](chainedsample, post_samples[i]) 
@@ -320,31 +326,31 @@ function sample_post(chainedmodel::ChainedModel, parameters::Vector{Symbol}, num
 end
 
 """
-    sample_stats(model, dist, numsamples)
+    samplestats(model, dist, numsamples)
 
 Sample from the distribution of the data generating process, and 
 calculate the corresponding statistics for the model.
 """
-function sample_stats(::BernoulliModel, dist::Bernoulli, numsamples::Integer)
+function samplestats(::BernoulliModel, dist::Bernoulli, numsamples::Integer)
     return BernoulliStatistics(rand(dist, numsamples))
 end
 
-function sample_stats(::ExponentialModel, dist::Exponential, numsamples::Integer)
+function samplestats(::ExponentialModel, dist::Exponential, numsamples::Integer)
     return ExponentialStatistics(rand(dist, numsamples))
 end
 
-function sample_stats(::NormalModel{NormalInverseGamma}, dist::Normal, numsamples::Integer)
+function samplestats(::NormalModel{NormalInverseGamma}, dist::Normal, numsamples::Integer)
     return NormalStatistics(rand(dist, numsamples))
 end
 
-function sample_stats(::LogNormalModel{NormalInverseGamma}, dist::LogNormal, numsamples::Integer)
+function samplestats(::LogNormalModel{NormalInverseGamma}, dist::LogNormal, numsamples::Integer)
     return LogNormalStatistics(rand(dist, numsamples))
 end
 
-function sample_stats(chainedmodel::ChainedModel, dists::Vector{T}, listofnumsamples::Vector{Int}) where T
+function samplestats(chainedmodel::ChainedModel, dists::Vector{T}, listofnumsamples::Vector{Int}) where T
     listofstats = Vector{ModelStatistics}()
     for (model, dist, numsamples) in zip(chainedmodel.models, dists, listofnumsamples)
-        push!(listofstats, sample_stats(model, dist, numsamples))
+        push!(listofstats, samplestats(model, dist, numsamples))
     end
     return listofstats
 end

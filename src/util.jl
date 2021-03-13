@@ -11,7 +11,7 @@ unnest(arr) = vcat(transpose(arr)...);
 
 Convert a parameter vector of length 1 to a single parameter.
 """
-function converttoparameter(parameters::Vector{Symbol}) 
+function toparameter(parameters::Vector{Symbol}) 
     length(parameters) == 1 || error("Number of parameters should be 1")
     return parameters[1]
 end
