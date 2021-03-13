@@ -1,4 +1,4 @@
-# Home
+# BayesianExperiments.jl
 
 This is the documentation of `BayesianExperiments.jl`, a library for conducting Bayesian AB testing in Julia.
 
