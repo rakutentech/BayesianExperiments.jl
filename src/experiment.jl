@@ -80,14 +80,14 @@ function defaultparams(experiment::ExperimentABN)
 end
 
 """
-    BayesFactorExperiment{M} <: Experiment
+    ExperimentBF{M} <: Experiment
 
 `BayesFactorExperiment` is an experiment using a Bayes Factor between the 
 null and alternative hypothesis as the stopping rule.
 
 # Constructors
 
-    BayesFactorExperiment(model, p0, rule; kwargs...)
+    ExperimentBF(model, p0, rule; kwargs...)
 
 ## Arguments
 
@@ -102,7 +102,7 @@ null and alternative hypothesis as the stopping rule.
 - `names`: Names of the hypotheses. Default is `["null", "alternative"]`.
 
 """
-mutable struct BayesFactorExperiment{M} <: Experiment
+mutable struct ExperimentBF{M} <: Experiment
     model::M                   # prior of effect size of alternative model 
     p0::Float64                # probablity of null hypothesis
     rejection::Bool            # decision to reject the null hypothesis or not
@@ -110,7 +110,7 @@ mutable struct BayesFactorExperiment{M} <: Experiment
     stats::Union{ModelStatistics, Nothing} # statistics for calculating the bayes factor
     names::Vector{String} 
 
-    function BayesFactorExperiment(;
+    function ExperimentBF(;
         model::M, p0, rule, stats=nothing, names=["null", "alternative"]) where M
         return new{M}(model, p0, false, rule, stats, names)
     end
@@ -233,7 +233,7 @@ function metrics(experiment::ExperimentABN; numsamples=10_000)
     return metrics(experiment, parameters, numsamples=numsamples)
 end
 
-function metrics(experiment::BayesFactorExperiment{NormalModel{Normal}})
+function metrics(experiment::ExperimentBF{NormalModel{Normal}})
     (experiment.stats !== nothing && experiment.stats.n > 0) || 
         error("The experiment has no data.")
     x̄ = experiment.stats.meanx
@@ -262,7 +262,7 @@ function decide!(experiment::ExperimentABN; numsamples=10_000)
     return decide!(experiment, parameters, numsamples=numsamples)
 end
 
-function decide!(experiment::BayesFactorExperiment; numsamples=10_000)
+function decide!(experiment::ExperimentBF; numsamples=10_000)
     bayesfactor = metrics(experiment, numsamples=numsamples)
     threshold = experiment.rule.threshold
     if bayesfactor > threshold 
