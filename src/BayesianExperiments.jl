@@ -1,8 +1,7 @@
 module BayesianExperiments
 
-import Base:show
-import Base.convert
 import Statistics: mean, rand, std
+using Base
 using Distributions: 
     pdf, 
     Beta, Gamma, LogNormal, Bernoulli, Exponential, InverseGamma, Normal,
