@@ -15,18 +15,40 @@ include("rule.jl")
 include("experiment.jl")
 include("simulation.jl")
 
-export Experiment,
+# external dependencies
+export
+    # Distributions.jl
+    Bernoulli,
+    Exponential,
+    Normal,
+    LogNormal
+
+# package exports
+export 
+    # shared methods
+    update!,
+    rand, 
+    mean,
+    convert,
+
+    # experiment.jl
+    Experiment,
     ExperimentABN,
     ExperimentAB,
     BayesFactorExperiment,
 
-    Bernoulli,
-    Exponential,
-    Normal,
-    LogNormal,
-    
+    expectedloss,
+    expectedlosses, 
+    probbeatall,
+
+    decide!, 
+    upliftloss,
+    metrics,
+        
+    # model.jl
     ProbabilisticModel, 
     ConjugateModel,
+
     BernoulliModel,
     BernoulliStatistics, 
     BernoulliPosteriorSample,
@@ -46,29 +68,24 @@ export Experiment,
     ChainedModel, 
     ChainOperator,
 
-    update!,
-    decide!, 
+    samplepost,
+    samplestats,
+    lognormalparams,
 
+    # rule.jl
     ExpectedLossThresh, 
     ProbabilityBeatAllThresh,
     BayesFactorThresh,
 
-    expectedloss,
-    expectedlosses, 
-    probbeatall,
-    rand, 
-    mean,
-    samplepost,
-    samplestats,
-    metrics,
-    lognormalparams,
-    upliftloss,
-
+    # simulation.jl
     Simulation,
-    updateonce!,
     DataGeneratingDistibutions,
-    convert,
+
     runonce,
     runsequential,
+    updateonce!,
+
+    # util.jl
     unnest
+
 end # module
