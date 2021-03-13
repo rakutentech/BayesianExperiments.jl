@@ -3,7 +3,7 @@
 [![Latest Doc](https://img.shields.io/badge/docs-latest-blue.svg)][1]
 [![codecov](https://codecov.io/gh/rakutentech/BayesianExperiments.jl/branch/main/graph/badge.svg?token=DOZ0HIW1V8)](https://codecov.io/gh/rakutentech/BayesianExperiments.jl)
 
-A library for running Bayesian AB testing experiments.
+Tools for running Bayesian AB test experiments.
 
 Current features include:
 
