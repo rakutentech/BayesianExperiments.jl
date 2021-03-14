@@ -267,6 +267,43 @@ function defaultparams(chainedmodel::ChainedModel)
 end
 
 """
+    EffectSizeModel <: ProbabilisticModel
+
+A standard effect size model has two hypotheses: ``H_1``(null) an ``H_2``(alternative):
+
+1. ``H_1``: ``\\mu = m_0``
+2. ``H_2``: ``\\mu ≠ m_0``
+
+with the population mean ``\\mu`` and pre-specified standard deviation ``\\sigma``. We want to test whether 
+``\\mu`` is equal to ``m_0`` or not.
+
+The prior of the standard effect size is 
+
+``
+\\delta | H_2 \\sim \\text{Normal}(0, \\frac{1}{n0})
+``
+
+where the standard effect size is defined as 
+
+``
+\\delta = \\frac{\\mu - m_0}{\\sigma}.
+``
+
+## References
+
+1. [Chapter 5 hypothesis Testing with Normal Populations](
+    https://statswithr.github.io/book/hypothesis-testing-with-normal-populations.html) 
+    in *An Introduction to Bayesian Thinking*.
+2. Deng, Alex, Jiannan Lu, and Shouyuan Chen. "Continuous monitoring of A/B tests without pain: 
+   Optional stopping in Bayesian testing." 2016 IEEE international conference on data science 
+   and advanced analytics (DSAA). IEEE, 2016.
+"""
+struct EffectSizeModel <: ProbabilisticModel
+    m0::Float64
+    n0::Float64
+end
+
+"""
     samplepost(model, numsamples)
 
 Sample from the posterior distribution of the model.

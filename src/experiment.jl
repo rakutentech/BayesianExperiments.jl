@@ -103,15 +103,15 @@ null and alternative hypothesis as the stopping rule.
 
 """
 mutable struct ExperimentBF{M} <: Experiment
-    model::M                   # prior of effect size of alternative model 
-    p0::Float64                # probablity of null hypothesis
-    rejection::Bool            # decision to reject the null hypothesis or not
-    rule::BayesFactorThresh    # stopping rule, threshold by Bayes Factor 
-    stats::Union{ModelStatistics, Nothing} # statistics for calculating the bayes factor
+    model::M
+    p0::Float64
+    rejection::Bool
+    rule::BayesFactorThresh
+    stats::Union{ModelStatistics, Nothing}
     names::Vector{String} 
 
-    function ExperimentBF(;
-        model::M, p0, rule, stats=nothing, names=["null", "alternative"]) where M
+    function ExperimentBF{M}(;
+        model, p0, rule, stats=nothing, names=["null", "alternative"]) where M
         return new{M}(model, p0, false, rule, stats, names)
     end
 end

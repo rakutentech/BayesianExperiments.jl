@@ -68,6 +68,8 @@ export
     ChainedModel, 
     ChainOperator,
 
+    EffectSizeModel,
+
     samplepost,
     samplestats,
     lognormalparams,
