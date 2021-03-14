@@ -110,9 +110,9 @@ mutable struct ExperimentBF{M} <: Experiment
     stats::Union{ModelStatistics, Nothing}
     names::Vector{String} 
 
-    function ExperimentBF{M}(;
+    function ExperimentBF(;
         model, p0, rule, stats=nothing, names=["null", "alternative"]) where M
-        return new{M}(model, p0, false, rule, stats, names)
+        return new{typeof(model)}(model, p0, false, rule, stats, names)
     end
 end
 
@@ -233,12 +233,12 @@ function metrics(experiment::ExperimentABN; numsamples=10_000)
     return metrics(experiment, parameters, numsamples=numsamples)
 end
 
-function metrics(experiment::ExperimentBF{ConjugateNormal{Normal}})
+function metrics(experiment::ExperimentBF{EffectSizeModel})
     (experiment.stats !== nothing && experiment.stats.n > 0) || 
         error("The experiment has no data.")
     x̄ = experiment.stats.meanx
     n = experiment.stats.n 
-    σ0 = experiment.model.dist.σ
+    σ0 = experiment.model.σ0
     bayesfactor = pdf(Normal(0, sqrt(σ0^2+1/n)), x̄)/pdf(Normal(0, sqrt(1/n)), x̄)
     return bayesfactor
 end

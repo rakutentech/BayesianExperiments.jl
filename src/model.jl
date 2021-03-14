@@ -280,7 +280,7 @@ with the population mean ``\\mu`` and pre-specified standard deviation ``\\sigma
 The prior of the standard effect size is 
 
 ``
-\\delta | H_2 \\sim \\text{Normal}(0, \\frac{1}{n0})
+\\delta | H_2 \\sim \\text{Normal}(0, \\sigma_0)
 ``
 
 where the standard effect size is defined as 
@@ -300,7 +300,7 @@ where the standard effect size is defined as
 """
 struct EffectSizeModel <: ProbabilisticModel
     m0::Float64
-    n0::Float64
+    σ0::Float64
 end
 
 """
