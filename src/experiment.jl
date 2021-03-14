@@ -111,9 +111,14 @@ mutable struct ExperimentBF{M} <: Experiment
     names::Vector{String} 
 
     function ExperimentBF(;
-        model, p0, rule, stats=nothing, names=["null", "alternative"]) where M
+        model, p0, rule, stats=nothing, names=["null", "alternative"])
         return new{typeof(model)}(model, p0, false, rule, stats, names)
     end
+end
+
+function update!(experiment::ExperimentBF, stats)
+    experiment.stats = update!(experiment.stats, stats)
+    return nothing
 end
 
 """
@@ -236,10 +241,10 @@ end
 function metrics(experiment::ExperimentBF{EffectSizeModel})
     (experiment.stats !== nothing && experiment.stats.n > 0) || 
         error("The experiment has no data.")
-    x̄ = experiment.stats.meanx
+    δ = effectsize(experiment.stats, m0=experiment.model.m0)
     n = experiment.stats.n 
     σ0 = experiment.model.σ0
-    bayesfactor = pdf(Normal(0, sqrt(σ0^2+1/n)), x̄)/pdf(Normal(0, sqrt(1/n)), x̄)
+    bayesfactor = pdf(Normal(0, sqrt(σ0^2+1/n)), δ)/pdf(Normal(0, sqrt(1/n)), δ)
     return bayesfactor
 end
 
@@ -262,8 +267,8 @@ function decide!(experiment::ExperimentABN; numsamples=10_000)
     return decide!(experiment, parameters, numsamples=numsamples)
 end
 
-function decide!(experiment::ExperimentBF; numsamples=10_000)
-    bayesfactor = metrics(experiment, numsamples=numsamples)
+function decide!(experiment::ExperimentBF)
+    bayesfactor = metrics(experiment)
     threshold = experiment.rule.threshold
     if bayesfactor > threshold 
         experiment.rejection = true

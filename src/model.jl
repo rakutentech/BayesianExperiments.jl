@@ -283,7 +283,8 @@ The prior of the standard effect size is
 \\delta | H_2 \\sim \\text{Normal}(0, \\sigma_0)
 ``
 
-where the standard effect size is defined as 
+where ``\\delta`` is the standard effect size and ``\\sigma_0`` is the standard deviation of the 
+prior distribution. The standard effect size ``\\delta`` is defined as 
 
 ``
 \\delta = \\frac{\\mu - m_0}{\\sigma}.

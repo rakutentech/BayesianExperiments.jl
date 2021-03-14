@@ -54,28 +54,6 @@ struct NormalStatistics <: ModelStatistics
     end
 end
 
-struct LogNormalStatistics <: ModelStatistics
-    n::Int
-    meanlogx::Real
-    sdlogx::Real
-
-    function LogNormalStatistics(; n, meanlogx, sdlogx)
-        return new(n, meanlogx, sdlogx)
-    end
-
-    function LogNormalStatistics(data::Vector{T}) where {T<:Real}
-        data > zero(data) || error("data must be positive for lognormal data")
-        n = length(data)
-        logdata = log.(data)
-        meanlogx = mean(logdata)
-        sdlogx = std(logdata)
-        return new(n, meanlogx, sdlogx)
-    end
-end
-
-getall(stats::NormalStatistics) = (stats.n, stats.meanx, stats.sdx)
-getall(stats::LogNormalStatistics) = (stats.n, stats.meanlogx, stats.sdlogx)
-
 """
 update!(stats_old, stats_new)
 
@@ -102,3 +80,31 @@ function update!(stats1::T, stats2::T) where {T<:NormalStatistics}
 
     return NormalStatistics(; n=new_n, meanx=new_meanx, sdx=new_sdx)
 end
+
+function effectsize(stats::NormalStatistics; m0=0.0)
+    (stats.n > 0 && stats.sdx > 0) || error("invalid statistics $(stats)")
+    return (stats.meanx - m0)/stats.sdx
+end
+
+struct LogNormalStatistics <: ModelStatistics
+    n::Int
+    meanlogx::Real
+    sdlogx::Real
+
+    function LogNormalStatistics(; n, meanlogx, sdlogx)
+        return new(n, meanlogx, sdlogx)
+    end
+
+    function LogNormalStatistics(data::Vector{T}) where {T<:Real}
+        data > zero(data) || error("data must be positive for lognormal data")
+        n = length(data)
+        logdata = log.(data)
+        meanlogx = mean(logdata)
+        sdlogx = std(logdata)
+        return new(n, meanlogx, sdlogx)
+    end
+end
+
+getall(stats::NormalStatistics) = (stats.n, stats.meanx, stats.sdx)
+getall(stats::LogNormalStatistics) = (stats.n, stats.meanlogx, stats.sdlogx)
+
