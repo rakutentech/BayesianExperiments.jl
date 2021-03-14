@@ -11,8 +11,8 @@ dataA = rand(Bernoulli(0.15), n)
 dataB = rand(Bernoulli(0.16), n)
 
 # Define the models
-modelA = BernoulliModel(1, 1)
-modelB = BernoulliModel(1, 1)
+modelA = ConjugateBernoulli(1, 1)
+modelB = ConjugateBernoulli(1, 1)
 
 # Choose the stopping rule that we will use for making decision
 stoppingrule = ExpectedLossThresh(0.0002)
@@ -48,9 +48,9 @@ dataB = rand(Bernoulli(0.145), n)
 dataC = rand(Bernoulli(0.152), n)
 
 # Define the models
-modelA = BernoulliModel(1, 1)
-modelB = BernoulliModel(1, 1)
-modelC = BernoulliModel(1, 1)
+modelA = ConjugateBernoulli(1, 1)
+modelB = ConjugateBernoulli(1, 1)
+modelC = ConjugateBernoulli(1, 1)
 
 # Choose the stopping rule
 stoppingrule = ProbabilityBeatAllThresh(0.99)
@@ -75,7 +75,7 @@ winner = decide!(experiment)
 
 ## Example: Chained Models
 
-We have a chained model with BernoulliModel and LogNormalModel. A common use case is
+We have a chained model with ConjugateBernoulli and ConjugateLogNormal. A common use case is
 when we want to use revenue per visitor as the metric. We need to model distributions of both the conversion rate and revenue.  
 
 ```julia
@@ -96,11 +96,11 @@ statsB2 = LogNormalStatistics(dataB2)
 
 # Setup the experiment
 modelA = ChainedModel(
-    [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
+    [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
     [op_multiply]
 )
 modelB = ChainedModel(
-    [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
+    [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
     [op_multiply]
 )
 
@@ -138,8 +138,8 @@ maxsteps = 30
 minsteps = 5
 
 # Setup the experiment with models and stopping rule
-modelA = BernoulliModel(1, 1)
-modelB = BernoulliModel(1, 1)
+modelA = ConjugateBernoulli(1, 1)
+modelB = ConjugateBernoulli(1, 1)
 stoppingrule = ProbabilityBeatAllThresh(0.99)
 experiment = ExperimentAB([modelA, modelB], stoppingrule)
 

@@ -1,6 +1,6 @@
 using Base.Iterators: partition
 
-@testset "BernoulliModel" begin
+@testset "ConjugateBernoulli" begin
     # underlying distribution
     n = 100000
     θ = 0.55
@@ -9,7 +9,7 @@ using Base.Iterators: partition
     data = rand(Bernoulli(θ), n)
 
     @testset "Model update and posteriros sampling" begin
-        model = BernoulliModel(1, 1)
+        model = ConjugateBernoulli(1, 1)
         stats = BernoulliStatistics(s=sum(data), n=n)
         update!(model, stats)
         posterior_samples = samplepost(model, 100_000)
@@ -27,13 +27,13 @@ using Base.Iterators: partition
         α = 10
         β = 30
         data_by_step = reshape(data, (10, div(n, numsteps)))
-        model_online = BernoulliModel(α, β)
+        model_online = ConjugateBernoulli(α, β)
         for i = 1:numsteps
             stats = BernoulliStatistics(data_by_step[i,:])
             update!(model_online, stats)
         end
 
-        model_oneshot = BernoulliModel(α, β)
+        model_oneshot = ConjugateBernoulli(α, β)
         stats = BernoulliStatistics(data)
         update!(model_oneshot, stats)
 
@@ -42,7 +42,7 @@ using Base.Iterators: partition
 
 end
 
-@testset "ExponentialModel" begin
+@testset "ConjugateExponential" begin
     # underlying distribution
     n = 100_000
     Random.seed!(1234)
@@ -50,7 +50,7 @@ end
     data = rand(Exponential(θ), n)
     
     @testset "Posteriors sampling" begin
-        model = ExponentialModel(0.001, 1000)
+        model = ConjugateExponential(0.001, 1000)
         stats = ExponentialStatistics(n=n, x̄=mean(data))
         update!(model, stats)
         posterior_samples = samplepost(model, 100_000)
@@ -68,13 +68,13 @@ end
         α = 2 
         θ = 5 
         data_by_step = reshape(data, (10, div(n, numsteps)))
-        model_online = ExponentialModel(α, θ)
+        model_online = ConjugateExponential(α, θ)
         for i = 1:numsteps
             stats = ExponentialStatistics(data_by_step[i, :]) 
             update!(model_online, stats)
         end
 
-        model_oneshot = ExponentialModel(α, θ)
+        model_oneshot = ConjugateExponential(α, θ)
         stats = ExponentialStatistics(data)
         update!(model_oneshot, stats)
 
@@ -84,7 +84,7 @@ end
     end
 end
 
-@testset "NormalModel" begin
+@testset "ConjugateNormal" begin
     # underlying distribution
     n = 100_000
     Random.seed!(1234)
@@ -93,7 +93,7 @@ end
     data = rand(Normal(μ, σ), n)
 
     @testset "Posteriors sampling" begin
-        model = NormalModel(0.0, 1.0, 0.001, 0.001)
+        model = ConjugateNormal(0.0, 1.0, 0.001, 0.001)
         stats = NormalStatistics(data)
         update!(model, stats)
         posterior_samples = samplepost(model, 100_000)
@@ -111,13 +111,13 @@ end
     @testset "Online update vs. One shot update" begin
         numsteps = 10
         data_by_step = reshape(data, (10, div(n, numsteps)))
-        model_online = NormalModel(0.0, 10.0, 10., 5.0) 
+        model_online = ConjugateNormal(0.0, 10.0, 10., 5.0) 
         for i = 1:numsteps
             stats = NormalStatistics(data_by_step[i, :]) 
             update!(model_online, stats)
         end
 
-        model_oneshot = NormalModel(0.0, 10.0, 10., 5.0) 
+        model_oneshot = ConjugateNormal(0.0, 10.0, 10., 5.0) 
         stats = NormalStatistics(data)
         update!(model_oneshot, stats)
 
@@ -129,7 +129,7 @@ end
     end
 end
 
-@testset "LogNormalModel" begin
+@testset "ConjugateLogNormal" begin
     # underlying distribution
     meanlogx = 7.0
     sdlogx = 0.9
@@ -140,7 +140,7 @@ end
     data  = rand(LogNormal(meanlogx, sdlogx), n)
 
     @testset "Posteriros sampling" begin
-        model = LogNormalModel(0.0, 1.0, 0.001, 0.001)
+        model = ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)
         stats = LogNormalStatistics(n=n, 
             meanlogx=mean(log.(data)), sdlogx=std(log.(data)))
         update!(model, stats)
@@ -167,13 +167,13 @@ end
     @testset "Online update vs. One shot update" begin
         numsteps = 10
         data_by_step = reshape(data, (10, div(n, numsteps)))
-        model_online = LogNormalModel(0.0, 10.0, 10., 5.0) 
+        model_online = ConjugateLogNormal(0.0, 10.0, 10., 5.0) 
         for i = 1:numsteps
             stats = LogNormalStatistics(data_by_step[i, :]) 
             update!(model_online, stats)
         end
 
-        model_oneshot = LogNormalModel(0.0, 10.0, 10., 5.0) 
+        model_oneshot = ConjugateLogNormal(0.0, 10.0, 10., 5.0) 
         stats = LogNormalStatistics(data)
         update!(model_oneshot, stats)
 

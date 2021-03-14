@@ -64,12 +64,12 @@ mean(model::ConjugateModel) = mean(model.dist)
 
 
 """
-    BernoulliModel <: ConjugateModel
+    ConjugateBernoulli <: ConjugateModel
 
 Bernoulli likelihood with Beta distribution as the conjugate prior.
 
 ```julia
-BernoulliModel(α, β)              # construct a BernoulliModel
+ConjugateBernoulli(α, β)              # construct a ConjugateBernoulli
 
 update!(model, stats)             # update model with statistics from data
 samplepost(model, numsamples)    # sampling from the posterior distribution
@@ -77,16 +77,16 @@ samplestats(model, numsamples)   # sampling statistics from the data generating 
 ```
 
 """
-mutable struct BernoulliModel <: ConjugateModel
+mutable struct ConjugateBernoulli <: ConjugateModel
     dist::Beta 
-    function BernoulliModel(α, β)
+    function ConjugateBernoulli(α, β)
         return new(Beta(α, β))
     end
 end
 
-defaultparams(::BernoulliModel) = [:θ]
+defaultparams(::ConjugateBernoulli) = [:θ]
 
-function update!(model::BernoulliModel, stats::BernoulliStatistics)
+function update!(model::ConjugateBernoulli, stats::BernoulliStatistics)
     numsuccesses = stats.s 
     numtrials = stats.n
     α = model.dist.α + numsuccesses
@@ -96,28 +96,28 @@ function update!(model::BernoulliModel, stats::BernoulliStatistics)
 end
 
 """
-    ExponentialModel <: ConjugateModel
+    ConjugateExponential <: ConjugateModel
 
 Exponential likelihood with Gamma distribution as the conjugate prior.
 
 ```julia
-ExponentialModel(α, β)            # construct a ExponentialModel
+ConjugateExponential(α, β)            # construct a ConjugateExponential
 
 update!(model, stats)             # update model with statistics from data
 samplepost(model, numsamples)    # sampling from the posterior distribution
 samplestats(model, numsamples)   # sampling statistics from the data generating distribution
 ```
 """
-mutable struct ExponentialModel <: ConjugateModel
+mutable struct ConjugateExponential <: ConjugateModel
     dist::Gamma
-    function ExponentialModel(α, θ)
+    function ConjugateExponential(α, θ)
         return new(Gamma(α, θ))
     end
 end
 
-defaultparams(::ExponentialModel) = [:θ]
+defaultparams(::ConjugateExponential) = [:θ]
 
-function update!(model::ExponentialModel, stats::ExponentialStatistics)
+function update!(model::ConjugateExponential, stats::ExponentialStatistics)
     n = stats.n
     x̄ = stats.x̄
     α = model.dist.α + n
@@ -127,7 +127,7 @@ function update!(model::ExponentialModel, stats::ExponentialStatistics)
 end
 
 """
-    NormalModel <: ConjugateModel    
+    ConjugateNormal <: ConjugateModel    
 
 Normal likelihood and Normal Inverse Gamma distribution as the 
 conjugate prior.
@@ -140,7 +140,7 @@ conjugate prior.
 - θ:  scale of Gamma distribution
 
 ```julia
-NormalModel(μ, v, α, θ)           # construct a NormalModel
+ConjugateNormal(μ, v, α, θ)           # construct a ConjugateNormal
 
 update!(model, stats)             # update model with statistics from data
 samplepost(model, numsamples)    # sampling from the posterior distribution
@@ -151,31 +151,31 @@ samplestats(model, numsamples)   # sampling statistics from the data generating 
 
 - The update rule for Normal distribution is based on this [lecture notes](https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/other-readings/chapter9.pdf).
 """
-mutable struct NormalModel{S} <: ConjugateModel
+mutable struct ConjugateNormal{S} <: ConjugateModel
     dist::S
-    function NormalModel{Normal}(μ::Real, σ::Real)
+    function ConjugateNormal{Normal}(μ::Real, σ::Real)
         T = promote_type(typeof(μ), typeof(σ))
         return new(Normal{T}(μ, σ))
     end
-    function NormalModel{NormalInverseGamma}(μ::Real, v::Real, α::Real, θ::Real)
+    function ConjugateNormal{NormalInverseGamma}(μ::Real, v::Real, α::Real, θ::Real)
         return new(NormalInverseGamma(μ, v, α, θ))
     end
 end
 
-NormalModel(μ::T, v::T, α::T, θ::T) where T <: Real = NormalModel{NormalInverseGamma}(μ, v, α, θ)
-NormalModel(μ::T, σ::T) where T <: Real = NormalModel{Normal}(μ, σ)
+ConjugateNormal(μ::T, v::T, α::T, θ::T) where T <: Real = ConjugateNormal{NormalInverseGamma}(μ, v, α, θ)
+ConjugateNormal(μ::T, σ::T) where T <: Real = ConjugateNormal{Normal}(μ, σ)
 
-defaultparams(::NormalModel{NormalInverseGamma}) = [:μ]
+defaultparams(::ConjugateNormal{NormalInverseGamma}) = [:μ]
 
 """
-    LogNormalModel(μ, v, α, θ)
+    ConjugateLogNormal(μ, v, α, θ)
 
 A model with Normal likelihood and Normal Inverse distribution with log transformed data.
 Notice `LogNormal` in `Distributions.jl` takes mean and standard deviation of \$\\log(x)\$ 
 instead of \$x\$ as the input parameters.
 
 ```julia
-LogNormalModel(μ, v, α, θ) # construct a LogNormalModel
+ConjugateLogNormal(μ, v, α, θ) # construct a ConjugateLogNormal
 
 lognormalparams(μ_logx, σ²_logx) # convert normal parameters to log-normal parameters
 update!(model, stats)              # update model with statistics from data
@@ -184,14 +184,14 @@ samplestats(model, numsamples)    # sampling statistics from the data generating
 ```
 
 """
-mutable struct LogNormalModel{S} <: ConjugateModel
+mutable struct ConjugateLogNormal{S} <: ConjugateModel
     dist::S
-    function LogNormalModel{NormalInverseGamma}(μ::Real, v::Real, α::Real, θ::Real)
+    function ConjugateLogNormal{NormalInverseGamma}(μ::Real, v::Real, α::Real, θ::Real)
         return new(NormalInverseGamma(μ, v, α, θ))
     end
 end
 
-LogNormalModel(μ::T, v::T, α::T, θ::T) where T <: Real = LogNormalModel{NormalInverseGamma}(μ, v, α, θ)
+ConjugateLogNormal(μ::T, v::T, α::T, θ::T) where T <: Real = ConjugateLogNormal{NormalInverseGamma}(μ, v, α, θ)
 
 function lognormalparams(μ_logx, σ²_logx) 
     μ_x  = @. exp(μ_logx + σ²_logx / 2)
@@ -199,9 +199,9 @@ function lognormalparams(μ_logx, σ²_logx)
     return (μ_x, σ²_x)
 end
 
-defaultparams(::LogNormalModel{NormalInverseGamma}) = [:μ_x]
+defaultparams(::ConjugateLogNormal{NormalInverseGamma}) = [:μ_x]
 
-function update!(model::Union{NormalModel{NormalInverseGamma},LogNormalModel{NormalInverseGamma}}, 
+function update!(model::Union{ConjugateNormal{NormalInverseGamma},ConjugateLogNormal{NormalInverseGamma}}, 
         stats::Union{NormalStatistics,LogNormalStatistics})
     n, x̄, sdx = getall(stats)
     ΣΔx² = sdx^2 * (n - 1)
@@ -269,11 +269,11 @@ end
 
 Sample from the posterior distribution of the model.
 """
-function samplepost(model::BernoulliModel, numsamples::Int)
+function samplepost(model::ConjugateBernoulli, numsamples::Int)
     return BernoulliPosteriorSample(rand(model.dist, numsamples))
 end
 
-function samplepost(model::ExponentialModel, numsamples::Int)
+function samplepost(model::ConjugateExponential, numsamples::Int)
     # Gamma distribution generates the rate (λ) of Exponential distribution
     # convert it to scale θ to make it consistent with Distributions.jl
     λs = rand(model.dist, numsamples)
@@ -281,12 +281,12 @@ function samplepost(model::ExponentialModel, numsamples::Int)
     return ExponentialPosteriorSample(θs)
 end
 
-function samplepost(model::NormalModel{NormalInverseGamma}, numsamples::Int) 
+function samplepost(model::ConjugateNormal{NormalInverseGamma}, numsamples::Int) 
     μ, σ² = rand(model.dist, numsamples)
     return NormalPosteriorSample(μ, σ²)
 end
 
-function samplepost(model::LogNormalModel{NormalInverseGamma}, numsamples::Int)
+function samplepost(model::ConjugateLogNormal{NormalInverseGamma}, numsamples::Int)
     # sample for normal means and variances
     μ_logx, σ²_logx = rand(model.dist, numsamples)
     μ_x, σ²_x = lognormalparams(μ_logx, σ²_logx)
@@ -331,19 +331,19 @@ end
 Sample from the distribution of the data generating process, and 
 calculate the corresponding statistics for the model.
 """
-function samplestats(::BernoulliModel, dist::Bernoulli, numsamples::Integer)
+function samplestats(::ConjugateBernoulli, dist::Bernoulli, numsamples::Integer)
     return BernoulliStatistics(rand(dist, numsamples))
 end
 
-function samplestats(::ExponentialModel, dist::Exponential, numsamples::Integer)
+function samplestats(::ConjugateExponential, dist::Exponential, numsamples::Integer)
     return ExponentialStatistics(rand(dist, numsamples))
 end
 
-function samplestats(::NormalModel{NormalInverseGamma}, dist::Normal, numsamples::Integer)
+function samplestats(::ConjugateNormal{NormalInverseGamma}, dist::Normal, numsamples::Integer)
     return NormalStatistics(rand(dist, numsamples))
 end
 
-function samplestats(::LogNormalModel{NormalInverseGamma}, dist::LogNormal, numsamples::Integer)
+function samplestats(::ConjugateLogNormal{NormalInverseGamma}, dist::LogNormal, numsamples::Integer)
     return LogNormalStatistics(rand(dist, numsamples))
 end
 

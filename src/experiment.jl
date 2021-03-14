@@ -233,7 +233,7 @@ function metrics(experiment::ExperimentABN; numsamples=10_000)
     return metrics(experiment, parameters, numsamples=numsamples)
 end
 
-function metrics(experiment::ExperimentBF{NormalModel{Normal}})
+function metrics(experiment::ExperimentBF{ConjugateNormal{Normal}})
     (experiment.stats !== nothing && experiment.stats.n > 0) || 
         error("The experiment has no data.")
     x̄ = experiment.stats.meanx

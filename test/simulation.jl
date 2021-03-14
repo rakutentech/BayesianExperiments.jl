@@ -7,8 +7,8 @@ using BayesianExperiments
         Random.seed!(1234)
         truedists = [Bernoulli(0.2), Bernoulli(0.2)]
 
-        modelA = BernoulliModel(1, 1)
-        modelB = BernoulliModel(1, 1)
+        modelA = ConjugateBernoulli(1, 1)
+        modelB = ConjugateBernoulli(1, 1)
         stoppingrule = ProbabilityBeatAllThresh(0.99)
         experiment = ExperimentAB([modelA, modelB], stoppingrule)
 
@@ -29,8 +29,8 @@ using BayesianExperiments
     @testset "Bernoulli model with expected loss with same distribution" begin
         Random.seed!(1234)
         truedists = [Bernoulli(0.2), Bernoulli(0.2)]
-        modelA = BernoulliModel(1, 1)
-        modelB = BernoulliModel(1, 1)
+        modelA = ConjugateBernoulli(1, 1)
+        modelB = ConjugateBernoulli(1, 1)
         stoppingrule = ExpectedLossThresh(1e-3)
         experiment = ExperimentAB([modelA, modelB], stoppingrule)
 
@@ -56,10 +56,10 @@ using BayesianExperiments
         ]
 
         modelA = ChainedModel(
-            [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
+            [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
         )
         modelB = ChainedModel(
-            [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
+            [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
         )
 
         stoppingrule = ExpectedLossThresh(0.1)

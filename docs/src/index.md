@@ -35,8 +35,8 @@ dataA = rand(Bernoulli(0.15), n)
 dataB = rand(Bernoulli(0.16), n)
 
 # Define the models
-modelA = BernoulliModel(1, 1)
-modelB = BernoulliModel(1, 1)
+modelA = ConjugateBernoulli(1, 1)
+modelB = ConjugateBernoulli(1, 1)
 
 # Choose the stopping rule that we will use for making decision
 stoppingrule = ExpectedLossThresh(0.0002)

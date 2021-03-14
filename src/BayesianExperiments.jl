@@ -49,19 +49,19 @@ export
     ProbabilisticModel, 
     ConjugateModel,
 
-    BernoulliModel,
+    ConjugateBernoulli,
     BernoulliStatistics, 
     BernoulliPosteriorSample,
 
-    ExponentialModel,
+    ConjugateExponential,
     ExponentialStatistics,
     ExponentialPosteriorSample,
 
-    NormalModel,
+    ConjugateNormal,
     NormalStatistics,
     NormalPosteriorSample,
 
-    LogNormalModel,
+    ConjugateLogNormal,
     LogNormalStatistics,
     LogNormalPosteriorSample,
 

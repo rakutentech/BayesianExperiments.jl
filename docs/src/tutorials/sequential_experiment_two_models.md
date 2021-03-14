@@ -18,8 +18,8 @@ A Bernoulli model is a model with Bernoulli distribution as the likelihood and B
 ```julia
 α = 1
 β = 1
-modelA = BernoulliModel(α, β)
-modelB = BernoulliModel(α, β)
+modelA = ConjugateBernoulli(α, β)
+modelB = ConjugateBernoulli(α, β)
 models = [modelA, modelB]
 modelnames = ["control", "variant 1"];
 ```

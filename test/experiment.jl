@@ -15,8 +15,8 @@ include("utils.jl")
     @testset "Approximate expected loss from posteriors" begin
         Random.seed!(1234)
         n = 10000
-        modelA = BernoulliModel(50, 50)
-        modelB = BernoulliModel(60, 40)
+        modelA = ConjugateBernoulli(50, 50)
+        modelB = ConjugateBernoulli(60, 40)
 
         exploss = expectedloss(modelA, modelB, [:θ], lossfunc=upliftloss, numsamples=n)
         @test isapprox(exploss, 0.1, atol=0.01)
@@ -28,8 +28,8 @@ include("utils.jl")
     @testset "Approximate expected loss from experiment" begin
         Random.seed!(1234)
         n = 10000
-        modelA = BernoulliModel(50, 50)
-        modelB = BernoulliModel(60, 40)
+        modelA = ConjugateBernoulli(50, 50)
+        modelB = ConjugateBernoulli(60, 40)
 
         exploss = expectedloss(modelA, modelB, lossfunc=upliftloss, numsamples=n)
         @test isapprox(exploss, 0.1, atol=0.01)
@@ -68,10 +68,10 @@ end
         statsB2 = LogNormalStatistics(dataB2)
 
         modelA = ChainedModel(
-            [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
+            [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
         )
         modelB = ChainedModel(
-            [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
+            [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
         )
 
         stoppingrule = ExpectedLossThresh(0.001)
