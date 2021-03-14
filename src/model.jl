@@ -57,10 +57,11 @@ corresponding likelihood function.
 """
 abstract type ConjugateModel <: ProbabilisticModel end
 
-Base.show(io::IO, model::ConjugateModel) = print(io, 
-    typeof(model), ": ", split(string(model.dist), ".", limit=2)[2])
-
-mean(model::ConjugateModel) = mean(model.dist)
+function Base.show(io::IO, model::ConjugateModel)
+    modelinfo = replace(string(model.dist), "Distributions."=>"", count=1)
+    message = "$(typeof(model)) : $(modelinfo)"
+    print(io, message)
+end
 
 
 """
@@ -149,7 +150,8 @@ samplestats(model, numsamples)   # sampling statistics from the data generating 
 
 ## References
 
-- The update rule for Normal distribution is based on this [lecture notes](https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/other-readings/chapter9.pdf).
+- The update rule for Normal distribution is based on this [lecture notes](
+    https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/other-readings/chapter9.pdf).
 """
 mutable struct ConjugateNormal{S} <: ConjugateModel
     dist::S
