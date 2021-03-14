@@ -84,7 +84,7 @@ Now we can visualize the expected losses over days. We can see the expected loss
 
 
 ```julia
-plot(collect(1:day), unnest(expected_losses), 
+plot(collect(1:day), catbyrow(expected_losses), 
     title="Expected Losses",
     label=["Control" "Variant 1"],
     legend=:topleft,)

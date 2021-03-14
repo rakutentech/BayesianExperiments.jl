@@ -86,6 +86,6 @@ export
     updateonce!,
 
     # util.jl
-    unnest
+    catbyrow
 
 end # module

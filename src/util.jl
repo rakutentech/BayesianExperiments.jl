@@ -1,10 +1,10 @@
 """
-    unnest(arr)
+    catbyrow(arr)
 
-Convert an array of array to a 2-dimenional matrix, 
-with the inner array as rows.
+Convert an array of array to a 2-dimenional matrix, the inner vector 
+is transposed as concatenated as rows.
 """
-unnest(arr) = vcat(transpose(arr)...);
+catbyrow(arr) = vcat(transpose(arr)...);
 
 """
     toparameter(parameters)
