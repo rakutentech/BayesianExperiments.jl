@@ -1,6 +1,3 @@
-abstract type ExperimentData end
-struct BinaryData <: ExperimentData end
-
 abstract type ModelStatistics end
 
 """
@@ -23,6 +20,11 @@ struct BernoulliStatistics <: ModelStatistics
     end
 end
 
+"""
+    ExponentialStatistics <: ModelStatistics
+
+Sample statistics of data generated from Expoential distribution.
+"""
 struct ExponentialStatistics <: ModelStatistics
     n::Int
     x̄::Real
@@ -37,6 +39,35 @@ struct ExponentialStatistics <: ModelStatistics
     end
 end
 
+"""
+    NormalStatistics <: ModelStatistics
+
+Sufficient statistics for normal distribution.
+
+## Methods
+
+    update!(stats_old, stats_new)
+
+Batch update for Normal statistics.
+
+    merge(twostats)
+
+Convert statistics of two independent samples into one NormalStatistics.
+
+- Mean is the difference between group 1 and group 2, minus the difference in 
+  the null hypothesis.
+- The standard deviation is calculated with pooled standard deviation. 
+- The sample size is the effective sample size.
+
+    effect(stats)
+
+Calculate effect size for one NormalStatistics or TwoSampleStatistics.
+
+## References
+
+- [Batch updates for simple statistics](
+https://notmatthancock.github.io/2017/03/23/simple-batch-stat-updates.html)
+"""
 struct NormalStatistics <: ModelStatistics
     n::Real # effective sample size can be non-integer
     meanx::Real
@@ -56,16 +87,6 @@ end
 
 TwoSampleStatistics = SVector{2, NormalStatistics} 
 
-"""
-update!(stats_old, stats_new)
-
-Batch update for Normal statistics.
-
-## References
-
-- [Batch updates for simple statistics](
-https://notmatthancock.github.io/2017/03/23/simple-batch-stat-updates.html)
-"""
 function update!(stats_old::T, stats_new::T) where {T<:NormalStatistics}
     n1 = stats_old.n
     m1 = stats_old.meanx
@@ -104,15 +125,6 @@ function Base.merge(twostats::TwoSampleStatistics)
     return NormalStatistics(meanx=Δ, sdx=σ, n=eff_n)
 end
 
-"""
-    effectsize(stats)
-
-Calculate effect size from sample statistics of one sample.
-
-    effectsize(stats1, stats2)
-
-Calculate effect size from sample statistics of two independent samples.
-"""
 function effectsize(stats::NormalStatistics; μ0=0.0)
     (stats.n > 0 && stats.sdx > 0) || error("invalid statistics $(stats)")
     return (stats.meanx - μ0)/stats.sdx
@@ -122,6 +134,12 @@ function effectsize(twosamplestats::TwoSampleStatistics; μ0=0.0)
     stats = merge(twosamplestats)
     return stats.meanx / stats.sdx
 end
+
+"""
+    LogNormalStatistics <: ModelStatistics
+
+Sample statistics of data generated from Expoential distribution.
+"""
 struct LogNormalStatistics <: ModelStatistics
     n::Int
     meanlogx::Real
