@@ -29,4 +29,4 @@ end
 
 pooledsd(sd1, sd2, n1, n2) = sqrt(((n1-1)*sd1^2 + (n2-1)*sd2^2) / (n1 + n2 - 2))
 
-zstat(x̄, m0, σ, n) = sqrt(n)*(x̄ - m0)/σ
+zstat(x̄, μ0, σ, n) = sqrt(n)*(x̄ - μ0)/σ

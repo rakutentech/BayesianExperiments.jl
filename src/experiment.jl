@@ -116,7 +116,8 @@ mutable struct ExperimentBF{M} <: Experiment
     end
 end
 
-function update!(experiment::ExperimentBF, stats)
+function update!(experiment::ExperimentBF, 
+    stats::Union{NormalStatistics, TwoSampleStatistics})
     if experiment.stats === nothing
         experiment.stats = stats
     else
@@ -124,8 +125,6 @@ function update!(experiment::ExperimentBF, stats)
     end
     return nothing
 end
-
-
 
 function bayesfactor(experiment::ExperimentBF)
     experiment.stats !== nothing || error("Experiment statistics is not initialized.")

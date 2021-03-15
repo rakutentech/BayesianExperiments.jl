@@ -295,7 +295,7 @@ they are known and use their estimates.
 
 ## Fileds
 
-- `m0`: mean of null hypothesis
+- `μ0`: mean of null hypothesis
 - `n0`: Prior sample size. `1/n0` is the prior standard deviation.
 
 ## References
@@ -308,14 +308,14 @@ they are known and use their estimates.
    and advanced analytics (DSAA). IEEE, 2016.
 """
 struct EffectSizeModel <: ProbabilisticModel
-    m0::Float64
+    μ0::Float64
     σ0::Float64
 end
 
 function bayesfactor(model::EffectSizeModel, stats::NormalStatistics)
     n = stats.n 
     σ0 = model.σ0
-    δ = effectsize(stats, m0=model.m0)
+    δ = effectsize(stats, μ0=model.μ0)
     bf21 = pdf(Normal(0, sqrt(σ0^2+1/n)), δ)/pdf(Normal(0, sqrt(1/n)), δ) 
     return bf21
 end

@@ -2,6 +2,7 @@ module BayesianExperiments
 
 import Statistics: mean, rand, std
 using Base
+using StaticArrays:SVector
 using Distributions: 
     pdf, 
     Beta, Gamma, LogNormal, Bernoulli, Exponential, InverseGamma, Normal,
@@ -69,6 +70,7 @@ export
     ChainedModel, 
     ChainOperator,
 
+    TwoSampleStatistics,
     EffectSizeModel,
 
     samplepost,
