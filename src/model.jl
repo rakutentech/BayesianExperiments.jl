@@ -280,15 +280,23 @@ with the population mean ``\\mu`` and pre-specified standard deviation ``\\sigma
 The prior of the standard effect size is 
 
 ``
-\\delta | H_2 \\sim \\text{Normal}(0, \\sigma_0)
+\\delta | H_2 \\sim \\text{Normal}(0, n_0)
 ``
 
-where ``\\delta`` is the standard effect size and ``\\sigma_0`` is the standard deviation of the 
-prior distribution. The standard effect size ``\\delta`` is defined as 
+where ``\\delta`` is the standard effect size and ``n_0`` can be considered as a prior sample size. 
+The standard effect size ``\\delta`` is defined as 
 
 ``
 \\delta = \\frac{\\mu - m_0}{\\sigma}.
 ``
+
+In practice, the standard deviations are unknown but in large sample scenario we assume 
+they are known and use their estimates.
+
+## Fileds
+
+- `m0`: mean of null hypothesis
+- `n0`: Prior sample size. `1/n0` is the prior standard deviation.
 
 ## References
 
@@ -302,6 +310,14 @@ prior distribution. The standard effect size ``\\delta`` is defined as
 struct EffectSizeModel <: ProbabilisticModel
     m0::Float64
     σ0::Float64
+end
+
+function bayesfactor(model::EffectSizeModel, stats::NormalStatistics)
+    n = stats.n 
+    σ0 = model.σ0
+    δ = effectsize(stats, m0=model.m0)
+    bf21 = pdf(Normal(0, sqrt(σ0^2+1/n)), δ)/pdf(Normal(0, sqrt(1/n)), δ) 
+    return bf21
 end
 
 """

@@ -107,20 +107,30 @@ mutable struct ExperimentBF{M} <: Experiment
     p0::Float64
     rejection::Bool
     rule::BayesFactorThresh
-    stats::Union{ModelStatistics, Nothing}
+    stats::Union{ModelStatistics, Vector{ModelStatistics}, Nothing}
     names::Vector{String} 
 
     function ExperimentBF(;
-        model, p0, rule, stats=nothing, names=["null", "alternative"])
+        model, rule, p0=0.5, stats=nothing, names=["null", "alternative"])
         return new{typeof(model)}(model, p0, false, rule, stats, names)
     end
 end
 
 function update!(experiment::ExperimentBF, stats)
-    experiment.stats = update!(experiment.stats, stats)
+    if experiment.stats === nothing
+        experiment.stats = stats
+    else
+        experiment.stats = update!(experiment.stats, stats)
+    end
     return nothing
 end
 
+
+
+function bayesfactor(experiment::ExperimentBF)
+    experiment.stats !== nothing || error("Experiment statistics is not initialized.")
+    return bayesfactor(experiment.model, experiment.stats)
+end
 """
     expectedloss(modelA, modelB; lossfunc, numsamples)
 
@@ -241,11 +251,7 @@ end
 function metrics(experiment::ExperimentBF{EffectSizeModel})
     (experiment.stats !== nothing && experiment.stats.n > 0) || 
         error("The experiment has no data.")
-    δ = effectsize(experiment.stats, m0=experiment.model.m0)
-    n = experiment.stats.n 
-    σ0 = experiment.model.σ0
-    bayesfactor = pdf(Normal(0, sqrt(σ0^2+1/n)), δ)/pdf(Normal(0, sqrt(1/n)), δ)
-    return bayesfactor
+    return bayesfactor(experiment)
 end
 
 """

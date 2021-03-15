@@ -40,6 +40,7 @@ export
     expectedloss,
     expectedlosses, 
     probbeatall,
+    bayesfactor,
 
     decide!, 
     upliftloss,
@@ -73,6 +74,7 @@ export
     samplepost,
     samplestats,
     lognormalparams,
+    effectsize,
 
     # rule.jl
     ExpectedLossThresh, 
@@ -88,6 +90,7 @@ export
     updateonce!,
 
     # util.jl
-    catbyrow
+    catbyrow,
+    zstat
 
 end # module

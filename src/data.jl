@@ -81,9 +81,34 @@ function update!(stats1::T, stats2::T) where {T<:NormalStatistics}
     return NormalStatistics(; n=new_n, meanx=new_meanx, sdx=new_sdx)
 end
 
+"""
+    effectsize(stats)
+
+Calculate effect size from sample statistics of one sample.
+
+    effectsize(stats1, stats2)
+
+Calculate effect size from sample statistics of two independent samples.
+"""
 function effectsize(stats::NormalStatistics; m0=0.0)
     (stats.n > 0 && stats.sdx > 0) || error("invalid statistics $(stats)")
     return (stats.meanx - m0)/stats.sdx
+end
+
+function effectsize(stats1::T, stats2::T; m0=0.0) where T <: NormalStatistics
+    n1 = stats.n
+    n2 = stats.n
+    sd1 = stats.sdx
+    sd2 = stats.sdx
+    
+    Δ = (stats1.meanx - stats2.meanx) - m0
+    σ = pooledsd(sd1, sd2, n1, n2)
+    return Δ / σ
+end
+
+function effectsize(statslist::Vector{NormalStatistics}; m0=0.0)
+    length(statslist) == 2 || error("Number of groups must be 2")
+    return effectsize(statslist[1], statslist[2], m0=m0)
 end
 
 struct LogNormalStatistics <: ModelStatistics
