@@ -90,6 +90,20 @@ function update!(
     return TwoSampleStatistics(stats1, stats2)
 end
 
+function Base.merge(twostats::TwoSampleStatistics)
+    stats1 = twostats[1]
+    stats2 = twostats[2]
+    n1 = stats1.n
+    n2 = stats2.n
+    eff_n = effsamplesize(n1, n2)
+    sd1 = stats1.sdx
+    sd2 = stats2.sdx
+    
+    Δ = (stats1.meanx - stats2.meanx)
+    σ = pooledsd(sd1, sd2, n1, n2)
+    return NormalStatistics(meanx=Δ, sdx=σ, n=eff_n)
+end
+
 """
     effectsize(stats)
 
@@ -105,17 +119,8 @@ function effectsize(stats::NormalStatistics; μ0=0.0)
 end
 
 function effectsize(twosamplestats::TwoSampleStatistics; μ0=0.0)
-    stats1 = twosamplestats[1]
-    stats2 = twosamplestats[2]
-    n1 = stats1.n
-    n2 = stats2.n
-    #eff_n = effsamplesize(n1, n2)
-    sd1 = stats1.sdx
-    sd2 = stats2.sdx
-    
-    Δ = (stats1.meanx - stats2.meanx) - μ0
-    σ = pooledsd(sd1, sd2, n1, n2)
-    return Δ / σ
+    stats = merge(twosamplestats)
+    return stats.meanx / stats.sdx
 end
 struct LogNormalStatistics <: ModelStatistics
     n::Int

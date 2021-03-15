@@ -32,6 +32,9 @@ export
     mean,
     convert,
 
+    # data.jl
+    merge,
+
     # experiment.jl
     Experiment,
     ExperimentABN,
@@ -93,6 +96,8 @@ export
 
     # util.jl
     catbyrow,
-    zstat
+    zstat,
+    effsamplesize,
+    pooledsd
 
 end # module

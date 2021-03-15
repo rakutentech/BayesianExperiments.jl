@@ -100,20 +100,40 @@ end
     end
 end
 
-@testset "ExperimentBF" begin
 
-    @testset "Normal Statistics batch update" begin
-        Random.seed!(12)
-        data1 = rand(Normal(0.01, 1), 100_000)
-        data2 = rand(Normal(0.03, 2), 100_000);
-        s1 = NormalStatistics(data1)
-        s2 = NormalStatistics(data2)
-        stats1 = update!(s1, s2)
-        stats2 = NormalStatistics([data1;data2])
 
-        @test stats1.n == stats2.n
-        @test isapprox(stats1.meanx, stats2.meanx, atol=0.0001)
-        @test isapprox(stats1.sdx, stats2.sdx, atol=0.0001)
+@testset "Bayes Factor calculation" begin
+    @testset "Bayes factor calculation" begin
+        # the example is taken from 
+        # https://statswithr.github.io/book/hypothesis-testing-with-normal-populations.html
+        n0 = 32.7^2
+        m0 = 0.5
+        x̄ = 0.500177
+        σ = 0.5
+        n = 1.0449e8;
+        σ0 = 1/sqrt(n0)
+
+        model = EffectSizeModel(m0, σ0)
+        stats = NormalStatistics(n=1.0449e8, meanx=x̄, sdx=σ)
+        bf21 = bayesfactor(model, stats)
+        @test isapprox(bf21, 2.2303, rtol=0.001)
+    end
+
+    @testset "Two samples with equal size and sd" begin
+        n0 = 32.7^2
+        m0 = 0.5 # null hypothesis: difference is 0.5 
+        σ = 0.5
+        n = 1.0449e8;
+        σ0 = 1/sqrt(n0)
+
+        # 2*n so that the effective sample size will be `n`
+        stats1 = NormalStatistics(n=2*n, meanx=1.000177, sdx=σ)
+        stats2 = NormalStatistics(n=2*n, meanx=0.5, sdx=σ)
+        stats = TwoSampleStatistics(stats1, stats2)
+
+        model = EffectSizeModel(m0, σ0)
+        bf21 = bayesfactor(model, stats)
+        @test isapprox(bf21, 2.2303, rtol=0.001)
     end
 
 end

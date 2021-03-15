@@ -7,6 +7,7 @@ using BayesianExperiments
 include("utils.jl")
 
 include("util.jl")
+include("data.jl")
 include("experiment.jl")
 include("model.jl")
 include("simulation.jl")

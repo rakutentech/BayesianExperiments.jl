@@ -320,6 +320,11 @@ function bayesfactor(model::EffectSizeModel, stats::NormalStatistics)
     return bf21
 end
 
+function bayesfactor(model::EffectSizeModel, twostats::TwoSampleStatistics)
+    stats = merge(twostats)
+    return bayesfactor(model, stats)
+end
+
 """
     samplepost(model, numsamples)
 
