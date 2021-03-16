@@ -99,7 +99,7 @@ end
 
 
 
-@testset "NormalEffectSize model" begin
+@testset "ExperiemntBF{NormalEffectSize}" begin
     @testset "Bayes factor calculation" begin
         # the example is taken from 
         # https://statswithr.github.io/book/hypothesis-testing-with-normal-populations.html
