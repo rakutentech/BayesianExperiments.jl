@@ -57,8 +57,8 @@ function bayesfactor(model::NormalEffectSize, stats::NormalStatistics)
     n = stats.n 
     σ0 = model.σ0
     δ = effectsize(stats, μ0=model.μ0)
-    bf21 = pdf(Normal(0, sqrt(σ0^2+1/n)), δ)/pdf(Normal(0, sqrt(1/n)), δ) 
-    return bf21
+    bf10 = pdf(Normal(0, sqrt(σ0^2+1/n)), δ)/pdf(Normal(0, sqrt(1/n)), δ) 
+    return bf10
 end
 
 function bayesfactor(model::NormalEffectSize, twostats::TwoNormalStatistics)

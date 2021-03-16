@@ -134,21 +134,70 @@ end
     end
 end
 
-@testset "StudentTEffectSize" begin
-    thresh=5
-    normalstats = TwoNormalStatistics(
-        NormalStatistics(meanx=28.8, sdx=13.5, n=133),
-        NormalStatistics(meanx=30.6, sdx=14.3, n=867)
-    )
-    model = StudentTEffectSize(r=1.0)
-    stats = StudentTStatistics(normalstats)
+@testset "ExperiemntBF{StudentTEffectSize}" begin
+    @testset "Null wins, thresh=5" begin
+        normalstats = TwoNormalStatistics(
+            NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+            NormalStatistics(meanx=30.6, sdx=14.3, n=867)
+        )
+        model = StudentTEffectSize(r=1.0)
+        stats = StudentTStatistics(normalstats)
+        bf10_model = bayesfactor(model, stats)
 
-    bf21_model = bayesfactor(model, stats)
+        thresh=5
+        stoppingrule = BayesFactorThresh(thresh)
+        experiment = ExperimentBF(model=model, rule=stoppingrule)
+        update!(experiment, normalstats)
+        bf10_exp = bayesfactor(experiment)
 
-    stoppingrule = BayesFactorThresh(thresh)
-    experiment = ExperimentBF(model=model, rule=stoppingrule)
-    update!(experiment, normalstats)
-    bf21_exp = bayesfactor(model, stats)
+        @test bf10_model == bf10_exp
+        @test isapprox(bf10_exp, 1/5.45, rtol=0.01)
 
-    @test bf21_model == bf21_exp
+        winner = decide!(experiment)
+        @test winner == "null"
+    end
+
+    @testset "Alternative wins, thresh=5" begin
+        normalstats = TwoNormalStatistics(
+            NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+            NormalStatistics(meanx=33.6, sdx=14.3, n=867)
+        )
+        model = StudentTEffectSize(r=1.0)
+        stats = StudentTStatistics(normalstats)
+        bf10_model = bayesfactor(model, stats)
+
+        thresh=5
+        stoppingrule = BayesFactorThresh(thresh)
+        experiment = ExperimentBF(model=model, rule=stoppingrule)
+        update!(experiment, normalstats)
+        bf10_exp = bayesfactor(experiment)
+
+        @test bf10_model == bf10_exp
+        @test isapprox(bf10_exp, 46.6077, rtol=0.01)
+
+        winner = decide!(experiment)
+        @test winner == "alternative"
+    end
+
+    @testset "No winners, thresh=0.01" begin
+        normalstats = TwoNormalStatistics(
+            NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+            NormalStatistics(meanx=30.6, sdx=14.3, n=867)
+        )
+        model = StudentTEffectSize(r=1.0)
+        stats = StudentTStatistics(normalstats)
+        bf10_model = bayesfactor(model, stats)
+
+        thresh=20
+        stoppingrule = BayesFactorThresh(thresh)
+        experiment = ExperimentBF(model=model, rule=stoppingrule)
+        update!(experiment, normalstats)
+        bf10_exp = bayesfactor(experiment)
+
+        @test bf10_model == bf10_exp
+        @test isapprox(bf10_exp, 1/5.45, rtol=0.01)
+
+        winner = decide!(experiment)
+        @test winner === nothing 
+    end
 end

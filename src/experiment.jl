@@ -108,11 +108,11 @@ mutable struct ExperimentBF{M<:BayesFactorModel} <: Experiment
     winner::Union{String, Nothing}
     rule::BayesFactorThresh
     stats::Union{NormalStatistics, TwoNormalStatistics, Nothing}
-    names::Vector{String} 
+    modelnames::Vector{String} 
 
     function ExperimentBF(;
-        model, rule, p0=0.5, stats=nothing, names=["null", "alternative"])
-        return new{typeof(model)}(model, p0, nothing, rule, stats, names)
+        model, rule, p0=0.5, stats=nothing, modelnames=["null", "alternative"])
+        return new{typeof(model)}(model, p0, nothing, rule, stats, modelnames)
     end
 end
 
@@ -255,8 +255,7 @@ function metrics(experiment::ExperimentABN; numsamples=10_000)
 end
 
 function metrics(experiment::ExperimentBF)
-    (experiment.stats !== nothing && experiment.stats.n > 0) || 
-        error("The experiment has no data.")
+    (experiment.stats !== nothing) || error("The experiment has no data.")
     return bayesfactor(experiment)
 end
 
