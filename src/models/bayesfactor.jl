@@ -70,27 +70,30 @@ end
     StudentTEffectSize <: BayesFactorModel
 
 A model with Bayes factor from the Student's t distributions.
-We have a standard effect size model has two hypotheses: ``H_1``(null) an ``H_2``(alternative):
+We have a standard effect size model has two hypotheses: ``H_0``(null) an ``H_1``(alternative):
 
 1. ``H_0``: ``\\mu = m_0``
 2. ``H_1``: ``\\mu ≠ m_0``
 
-The model uses the Jeffreys-Zellener-Siow (JZS) for μ and σ.
-More specifically, we a Cauchy prior on ``\\mu`` on ``H_2``
+The model uses the Jeffreys-Zellener-Siow (JZS) prior.
+More specifically, we use a Cauchy prior on ``\\mu`` for ``H_1``
 
 ``
-\\mu | \\sigma^2 \\sim \\text{Cauchy}(0, r^2)
+\\mu | \\sigma^2 \\sim \\text{Cauchy}(0, r^2 \\sigma^2)
 ``
 
-where ``r`` is a scale parameter that controls the width of the Cauchy distribution. 
-
-And we use a Jeffrey's prior on ``\\sigma``:
+and a Jeffrey's prior on ``\\sigma``:
 
 ``
-p(\\sigma^2) \\propto 1  
+p(\\sigma^2) \\propto \\frac{1}{\\sigma2}
 ``
 
-on both ``H_1`` and ``H_2``.
+for both ``H_0`` and ``H_1``.
+
+## References
+
+- Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. (2009). Bayesian t tests 
+  for accepting and rejecting the null hypothesis. Psychonomic bulletin & review, 16(2), 225-237.
 
 """
 struct StudentTEffectSize <: BayesFactorModel
