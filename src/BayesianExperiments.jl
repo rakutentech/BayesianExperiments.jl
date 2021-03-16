@@ -75,7 +75,7 @@ export
     ChainedModel, 
     ChainOperator,
 
-    TwoSampleStatistics,
+    TwoNormalStatistics,
     NormalEffectSize,
 
     samplepost,
