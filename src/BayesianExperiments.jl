@@ -7,6 +7,7 @@ using Distributions:
     pdf, 
     Beta, Gamma, LogNormal, Bernoulli, Exponential, InverseGamma, Normal,
     ContinuousUnivariateDistribution, UnivariateDistribution
+using QuadGK
 
 include("util.jl")
 include("data.jl")
