@@ -1,3 +1,4 @@
+abstract type BayesFactorModel <: ProbabilisticModel
 
 """
 EffectSizeModel <: ProbabilisticModel
@@ -47,12 +48,12 @@ in *An Introduction to Bayesian Thinking*.
 Optional stopping in Bayesian testing." 2016 IEEE international conference on data science 
 and advanced analytics (DSAA). IEEE, 2016.
 """
-struct EffectSizeModel <: ProbabilisticModel
+struct NormalEffectSize <: BayesFactorModel
     μ0::Float64
     σ0::Float64
 end
 
-function bayesfactor(model::EffectSizeModel, stats::NormalStatistics)
+function bayesfactor(model::NormalEffectSize, stats::NormalStatistics)
     n = stats.n 
     σ0 = model.σ0
     δ = effectsize(stats, μ0=model.μ0)
@@ -60,7 +61,15 @@ function bayesfactor(model::EffectSizeModel, stats::NormalStatistics)
     return bf21
 end
 
-function bayesfactor(model::EffectSizeModel, twostats::TwoSampleStatistics)
+function bayesfactor(model::NormalEffectSize, twostats::TwoNormalStatistics)
     stats = merge(twostats)
     return bayesfactor(model, stats)
+end
+
+struct StudentTModel <: BayesFactorModel
+    r::Real
+    rtol::Real
+end
+
+function bayesfactor(model::StudentTModel, stats::StudentTStatistics)
 end

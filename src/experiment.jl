@@ -247,7 +247,7 @@ function metrics(experiment::ExperimentABN; numsamples=10_000)
     return metrics(experiment, parameters, numsamples=numsamples)
 end
 
-function metrics(experiment::ExperimentBF{EffectSizeModel})
+function metrics(experiment::ExperimentBF{NormalEffectSize})
     (experiment.stats !== nothing && experiment.stats.n > 0) || 
         error("The experiment has no data.")
     return bayesfactor(experiment)
