@@ -61,5 +61,28 @@
         bf12_welch = 1/bayesfactor(model, stats_welch)
         @test isapprox(bf12_welch, 5.03,  rtol=0.001)
     end
+
+    @testset "One sample: Sleep data" begin
+        # This example uses the sleep data and "BayesFactor" package in R:
+        # https://richarddmorey.github.io/BayesFactor/
+
+        # "sleep" data in R have records of 10 paired observations
+        sleepdata = [-1.2, -2.4, -1.3, -1.3, 0.0, -1.0, -1.8, -0.8, -4.6, -1.4]
+
+        normalstats = NormalStatistics(sleepdata)
+        model = StudentTEffectSize()
+        stats = StudentTStatistics(normalstats)
+
+        # test the calculation for one-sample t-statistics
+        @test isapprox(stats.t,  -4.0621, rtol=0.001)
+        @test stats.n == length(sleepdata)
+        @test stats.dof == length(sleepdata) - 1
+
+        # test bayes factor calculation
+        model = StudentTEffectSize(r=sqrt(2)/2)
+        bf = bayesfactor(model, stats)
+
+        @test isapprox(bf, 17.259, rtol=0.001)
+    end
     
 end
