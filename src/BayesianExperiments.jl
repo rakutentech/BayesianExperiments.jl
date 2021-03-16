@@ -11,6 +11,7 @@ using Distributions:
 include("util.jl")
 include("data.jl")
 include("distribution.jl")
+include("models/common.jl")
 include("models/conjugate.jl")
 include("models/bayesfactor.jl")
 include("rule.jl")
@@ -75,7 +76,7 @@ export
     ChainOperator,
 
     TwoSampleStatistics,
-    EffectSizeModel,
+    NormalEffectSize,
 
     samplepost,
     samplestats,
