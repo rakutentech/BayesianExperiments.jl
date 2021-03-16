@@ -1,6 +1,3 @@
-using BayesianExperiments
-include("utils.jl")
-
 @testset "Expected Loss" begin
 
     @testset "calculate expected loss" begin

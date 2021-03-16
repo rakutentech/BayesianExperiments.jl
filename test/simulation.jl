@@ -1,7 +1,3 @@
-using Random
-
-using BayesianExperiments
-
 @testset "Continous Power Analysis" begin
     @testset "Bernoulli model with probability to beat all with same distribution" begin
         Random.seed!(1234)
