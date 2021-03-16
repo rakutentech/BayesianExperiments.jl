@@ -36,7 +36,17 @@ export
     convert,
 
     # data.jl
+    BernoulliStatistics, 
+    ExponentialStatistics,
+    NormalStatistics,
+    LogNormalStatistics,
+    TwoNormalStatistics,
+    StudentTStatistics,
+
     merge,
+    tstat,
+    tstatpooled,
+    tstatwelch,
 
     # experiment.jl
     Experiment,
@@ -53,35 +63,35 @@ export
     upliftloss,
     metrics,
         
-    # model.jl
+    # common.jl
     ProbabilisticModel, 
+
+    # conjugate.jl
     ConjugateModel,
 
     ConjugateBernoulli,
-    BernoulliStatistics, 
     BernoulliPosteriorSample,
 
     ConjugateExponential,
-    ExponentialStatistics,
     ExponentialPosteriorSample,
 
     ConjugateNormal,
-    NormalStatistics,
     NormalPosteriorSample,
 
     ConjugateLogNormal,
-    LogNormalStatistics,
     LogNormalPosteriorSample,
 
     ChainedModel, 
     ChainOperator,
 
-    TwoNormalStatistics,
-    NormalEffectSize,
-
     samplepost,
     samplestats,
     lognormalparams,
+
+    # bayesfactor.jl 
+    NormalEffectSize,
+    StudentTModel,
+
     effectsize,
 
     # rule.jl

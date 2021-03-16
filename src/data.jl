@@ -162,12 +162,8 @@ end
 getall(stats::NormalStatistics) = (stats.n, stats.meanx, stats.sdx)
 getall(stats::LogNormalStatistics) = (stats.n, stats.meanlogx, stats.sdlogx)
 
-struct StudentTStatistics <: ModelStatistics
-    t::Real
-    dof::Real
-    n::Real
-end
 
+# tstat functions
 function tstat(stats::NormalStatistics)
     return stats.meanx / stats.sdx * sqrt(stats.n)
 end
@@ -191,4 +187,36 @@ function tstatwelch(twostats::TwoNormalStatistics)
     n2 = stats2.n
     se = sqrt(sd1^2/n1 + sd2^2/n2)
     return (mu1 - mu2) / se
+end
+
+struct StudentTStatistics <: ModelStatistics
+    t::Real
+    dof::Real
+    n::Real
+end
+
+function StudentTStatistics(stats::NormalStatistics)
+    t = tstat(stats)
+    dof = stats.n - 1
+    n = stats.n
+    return StudentTStatistics(t, dof, n)
+end
+
+function StudentTStatistics(twostats::TwoNormalStatistics; pooled=true)
+    n1 = twostats[1].n
+    n2 = twostats[2].n
+    sd1 = twostats[1].sd
+    sd2 = twostats[2].sd
+
+    if pooled == true
+        t = tstatpooled(twostats)
+        dof = dofpooled(n1, n2)
+        n = effsamplesize(n1, n2)
+    else
+        t = tstatwelch(twostats)
+        dof = dofwelch(sd1, sd2, n1, n2)
+        n = effsamplesize(n1, n2)
+    end
+
+    return StudentTStatistics(t, dof, n)
 end

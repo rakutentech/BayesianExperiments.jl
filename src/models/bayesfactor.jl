@@ -71,5 +71,23 @@ struct StudentTModel <: BayesFactorModel
     rtol::Real
 end
 
+StudentTModel(;r=0.707, rtol=1e-8) = StudentTModel(r, rtol)
+
 function bayesfactor(model::StudentTModel, stats::StudentTStatistics)
+    t = stats.t
+    v = stats.dof
+    n = stats.n
+
+    r = model.r
+    rtol = model.rtol
+
+    numerator = (1 + t^2/v)^(-(v+1)/2)
+    denominator, _ = quadgk(
+        g -> (1+n*g*r^2)^(-0.5) * (1+t^2/((1+n*g*r^2)*v))^(-(v+1)/2) 
+            * (2π)^(-0.5) * g^(-1.5) * exp(-1/(2*g)),
+        0, Inf,
+        rtol=rtol)
+
+    # we take invserse to get b_1_0, instead of b_0_1
+    return denominator/numerator
 end

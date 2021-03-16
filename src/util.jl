@@ -19,9 +19,9 @@ end
 
 effsamplesize(n1, n2) = 1/(1/n1 + 1/n2)
 
-dof_pooled(n1, n2) = n1 + n2 - 2
+dofpooled(n1, n2) = n1 + n2 - 2
 
-function dof_welch(sd1, sd2, n1, n2)
+function dofwelch(sd1, sd2, n1, n2)
     se1_sq = sd1^2/n1
     se2_sq = sd2^2/n2
     (se1_sq + se2_sq)^2 / (se1_sq^2/(n1-1) + se2_sq^2/(n2-1))
