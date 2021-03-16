@@ -14,7 +14,7 @@
         # Example taken from "lsr" cohensD function
         gradesA = [55, 65, 65, 68, 70]
         gradesB = [56, 60, 62, 66]
-        stats = TwoSampleStatistics(NormalStatistics(gradesA), NormalStatistics(gradesB))
+        stats = TwoNormalStatistics(NormalStatistics(gradesA), NormalStatistics(gradesB))
         @test isapprox(effectsize(stats), 0.699892)
     end
 end
@@ -37,7 +37,7 @@ end
     @testset "Two samples with equal sizes and variances" begin
         stats1= NormalStatistics(meanx=0.8, sdx=1.32, n=100)
         stats2= NormalStatistics(meanx=0.85, sdx=1.32, n=100)
-        twostats = TwoSampleStatistics(stats1, stats2)
+        twostats = TwoNormalStatistics(stats1, stats2)
         stats = merge(twostats)
         @test stats.n == effsamplesize(stats1.n, stats2.n)
         @test stats.meanx == stats1.meanx - stats2.meanx

@@ -117,7 +117,7 @@ mutable struct ExperimentBF{M} <: Experiment
 end
 
 function update!(experiment::ExperimentBF, 
-    stats::Union{NormalStatistics, TwoSampleStatistics})
+    stats::Union{NormalStatistics, TwoNormalStatistics})
     if experiment.stats === nothing
         experiment.stats = stats
     else

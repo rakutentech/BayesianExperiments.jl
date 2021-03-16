@@ -61,7 +61,7 @@ Convert statistics of two independent samples into one NormalStatistics.
 
     effect(stats)
 
-Calculate effect size for one NormalStatistics or TwoSampleStatistics.
+Calculate effect size for one NormalStatistics or TwoNormalStatistics.
 
 ## References
 
@@ -161,3 +161,34 @@ end
 
 getall(stats::NormalStatistics) = (stats.n, stats.meanx, stats.sdx)
 getall(stats::LogNormalStatistics) = (stats.n, stats.meanlogx, stats.sdlogx)
+
+struct StudentTStatistics <: ModelStatistics
+    t::Real
+    dof::Real
+    n::Real
+end
+
+function tstat(stats::NormalStatistics)
+    return stats.meanx / stats.sdx * sqrt(stats.n)
+end
+
+function tstatpooled(twostats::TwoNormalStatistics)
+    n1 = twostats[1].n
+    n2 = twostats[2].n
+    es = effectsize(twostats)
+    ess = effsamplesize(n1, n2)
+    return es*sqrt(ess)
+end
+
+function tstatwelch(twostats::TwoNormalStatistics)
+    stats1 = twostats[1]
+    stats2 = twostats[2]
+    mu1 = stats1.meanx
+    mu2 = stats2.meanx
+    sd1 = stats1.meanx
+    sd2 = stats2.meanx
+    n1 = stats1.n
+    n2 = stats2.n
+    se = sqrt(sd1^2/n1 + sd2^2/n2)
+    return (mu1 - mu2) / se
+end

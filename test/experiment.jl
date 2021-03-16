@@ -113,7 +113,7 @@ end
         n = 1.0449e8;
         σ0 = 1/sqrt(n0)
 
-        model = EffectSizeModel(m0, σ0)
+        model = NormalEffectSize(m0, σ0)
         stats = NormalStatistics(n=1.0449e8, meanx=x̄, sdx=σ)
         bf21 = bayesfactor(model, stats)
         @test isapprox(bf21, 2.2303, rtol=0.001)
@@ -129,9 +129,9 @@ end
         # 2*n so that the effective sample size will be `n`
         stats1 = NormalStatistics(n=2*n, meanx=1.000177, sdx=σ)
         stats2 = NormalStatistics(n=2*n, meanx=0.5, sdx=σ)
-        stats = TwoSampleStatistics(stats1, stats2)
+        stats = TwoNormalStatistics(stats1, stats2)
 
-        model = EffectSizeModel(m0, σ0)
+        model = NormalEffectSize(m0, σ0)
         bf21 = bayesfactor(model, stats)
         @test isapprox(bf21, 2.2303, rtol=0.001)
     end
