@@ -85,7 +85,7 @@ struct NormalStatistics <: ModelStatistics
     end
 end
 
-TwoSampleStatistics = SVector{2, NormalStatistics} 
+TwoNormalStatistics = SVector{2, NormalStatistics} 
 
 function update!(stats_old::T, stats_new::T) where {T<:NormalStatistics}
     n1 = stats_old.n
@@ -105,13 +105,13 @@ function update!(stats_old::T, stats_new::T) where {T<:NormalStatistics}
 end
 
 function update!(
-    stats_old::TwoSampleStatistics, stats_new::TwoSampleStatistics)
+    stats_old::TwoNormalStatistics, stats_new::TwoNormalStatistics)
     stats1 = update!(stats_old[1], stats_new[1])
     stats2 = update!(stats_new[1], stats_new[2])
-    return TwoSampleStatistics(stats1, stats2)
+    return TwoNormalStatistics(stats1, stats2)
 end
 
-function Base.merge(twostats::TwoSampleStatistics)
+function Base.merge(twostats::TwoNormalStatistics)
     stats1 = twostats[1]
     stats2 = twostats[2]
     n1 = stats1.n
@@ -130,7 +130,7 @@ function effectsize(stats::NormalStatistics; μ0=0.0)
     return (stats.meanx - μ0)/stats.sdx
 end
 
-function effectsize(twosamplestats::TwoSampleStatistics; μ0=0.0)
+function effectsize(twosamplestats::TwoNormalStatistics; μ0=0.0)
     stats = merge(twosamplestats)
     return stats.meanx / stats.sdx
 end
@@ -161,4 +161,3 @@ end
 
 getall(stats::NormalStatistics) = (stats.n, stats.meanx, stats.sdx)
 getall(stats::LogNormalStatistics) = (stats.n, stats.meanlogx, stats.sdlogx)
-
