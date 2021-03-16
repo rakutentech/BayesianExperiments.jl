@@ -112,8 +112,8 @@ end
 
         model = NormalEffectSize(m0, σ0)
         stats = NormalStatistics(n=1.0449e8, meanx=x̄, sdx=σ)
-        bf21 = bayesfactor(model, stats)
-        @test isapprox(bf21, 2.2303, rtol=0.001)
+        bf10 = bayesfactor(model, stats)
+        @test isapprox(bf10, 2.2303, rtol=0.001)
     end
 
     @testset "Two samples with equal size and sd" begin
@@ -129,8 +129,8 @@ end
         stats = TwoNormalStatistics(stats1, stats2)
 
         model = NormalEffectSize(m0, σ0)
-        bf21 = bayesfactor(model, stats)
-        @test isapprox(bf21, 2.2303, rtol=0.001)
+        bf10 = bayesfactor(model, stats)
+        @test isapprox(bf10, 2.2303, rtol=0.001)
     end
 end
 
