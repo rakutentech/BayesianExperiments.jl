@@ -1,4 +1,4 @@
-abstract type BayesFactorModel <: ProbabilisticModel
+abstract type BayesFactorModel <: ProbabilisticModel end
 
 """
 EffectSizeModel <: ProbabilisticModel
