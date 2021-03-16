@@ -99,7 +99,7 @@ end
 
 
 
-@testset "Bayes Factor calculation" begin
+@testset "NormalEffectSize model" begin
     @testset "Bayes factor calculation" begin
         # the example is taken from 
         # https://statswithr.github.io/book/hypothesis-testing-with-normal-populations.html
@@ -132,5 +132,23 @@ end
         bf21 = bayesfactor(model, stats)
         @test isapprox(bf21, 2.2303, rtol=0.001)
     end
+end
 
+@testset "StudentTModel" begin
+    thresh=5
+    normalstats = TwoNormalStatistics(
+        NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+        NormalStatistics(meanx=30.6, sdx=14.3, n=867)
+    )
+    model = StudentTModel(r=1.0)
+    stats = StudentTStatistics(normalstats)
+
+    bf21_model = bayesfactor(model, stats)
+
+    stoppingrule = BayesFactorThresh(thresh)
+    experiment = ExperimentBF(model=model, rule=stoppingrule)
+    update!(experiment, normalstats)
+    bf21_exp = bayesfactor(model, stats)
+
+    @test bf21_model == bf21_exp
 end

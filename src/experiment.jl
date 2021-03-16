@@ -102,12 +102,12 @@ null and alternative hypothesis as the stopping rule.
 - `names`: Names of the hypotheses. Default is `["null", "alternative"]`.
 
 """
-mutable struct ExperimentBF{M} <: Experiment
+mutable struct ExperimentBF{M<:BayesFactorModel} <: Experiment
     model::M
     p0::Float64
     rejection::Bool
     rule::BayesFactorThresh
-    stats::Union{ModelStatistics, Vector{ModelStatistics}, Nothing}
+    stats::Union{NormalStatistics, TwoNormalStatistics, Nothing}
     names::Vector{String} 
 
     function ExperimentBF(;
@@ -126,10 +126,17 @@ function update!(experiment::ExperimentBF,
     return nothing
 end
 
-function bayesfactor(experiment::ExperimentBF)
+function bayesfactor(experiment::ExperimentBF{NormalEffectSize})
     experiment.stats !== nothing || error("Experiment statistics is not initialized.")
     return bayesfactor(experiment.model, experiment.stats)
 end
+
+function bayesfactor(experiment::ExperimentBF{StudentTModel})
+    experiment.stats !== nothing || error("Experiment statistics is not initialized.")
+    tstats = StudentTStatistics(experiment.stats)
+    return bayesfactor(experiment.model, tstats)
+end
+
 """
     expectedloss(modelA, modelB; lossfunc, numsamples)
 
@@ -247,7 +254,7 @@ function metrics(experiment::ExperimentABN; numsamples=10_000)
     return metrics(experiment, parameters, numsamples=numsamples)
 end
 
-function metrics(experiment::ExperimentBF{NormalEffectSize})
+function metrics(experiment::ExperimentBF)
     (experiment.stats !== nothing && experiment.stats.n > 0) || 
         error("The experiment has no data.")
     return bayesfactor(experiment)
