@@ -105,14 +105,14 @@ null and alternative hypothesis as the stopping rule.
 mutable struct ExperimentBF{M<:BayesFactorModel} <: Experiment
     model::M
     p0::Float64
-    rejection::Bool
+    winner::Union{String, Nothing}
     rule::BayesFactorThresh
     stats::Union{NormalStatistics, TwoNormalStatistics, Nothing}
     names::Vector{String} 
 
     function ExperimentBF(;
         model, rule, p0=0.5, stats=nothing, names=["null", "alternative"])
-        return new{typeof(model)}(model, p0, false, rule, stats, names)
+        return new{typeof(model)}(model, p0, nothing, rule, stats, names)
     end
 end
 
@@ -280,12 +280,15 @@ function decide!(experiment::ExperimentABN; numsamples=10_000)
 end
 
 function decide!(experiment::ExperimentBF)
+    modelnames = experiment.modelnames
     bayesfactor = metrics(experiment)
     threshold = experiment.rule.threshold
     if bayesfactor > threshold 
-        experiment.rejection = true
+        experiment.winner = modelnames[2] 
+    elseif bayesfactor < 1/threshold
+        experiment.winner = modelnames[1]
     else
-        experiment.rejection = false
+        experiment.winner = nothing 
     end
-    return experiment.rejection
+    return experiment.winner
 end
