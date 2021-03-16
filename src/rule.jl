@@ -39,6 +39,24 @@ struct ProbabilityBeatAllThresh <: StoppingRule
     threshold::Float64
 end
 
+"""
+    BayesFactorThresh <: StoppingRule
+
+The bayes factor itself is interpretable as the comparative evidence of data 
+under the two competing hypotheses. Higher bayes factor, as defined ``\text{BF}_{10}``
+favours the alternative hypothesis. 
+
+In practice, a threshold can be used to make decision in bayes factor experiment.
+The experiment will stop when 
+
+1. ``\text{BF}_{10}`` > threshold
+2. ``\text{BF}_{10}`` < 1/threshold
+
+In (1), the bayes factor of alternative over null is above the threshold,
+we can accept the alternative hypothesis. In (2), the bayes factor is below the
+inverse of the threshold, we can accept the null hypothesis. Otherwise, we don't 
+have enough evidence to accept any of these hypotheses.
+"""
 struct BayesFactorThresh <: StoppingRule
     threshold::Float64
 end
