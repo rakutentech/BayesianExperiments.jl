@@ -195,6 +195,8 @@ struct StudentTStatistics <: ModelStatistics
     n::Real
 end
 
+StudentTStatistics(;t, dof, n) = StudentTStatistics(t, dof, n)
+
 function StudentTStatistics(stats::NormalStatistics)
     t = tstat(stats)
     dof = stats.n - 1
