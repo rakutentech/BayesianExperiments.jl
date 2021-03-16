@@ -131,7 +131,7 @@ function bayesfactor(experiment::ExperimentBF{NormalEffectSize})
     return bayesfactor(experiment.model, experiment.stats)
 end
 
-function bayesfactor(experiment::ExperimentBF{StudentTModel})
+function bayesfactor(experiment::ExperimentBF{StudentTEffectSize})
     experiment.stats !== nothing || error("Experiment statistics is not initialized.")
     tstats = StudentTStatistics(experiment.stats)
     return bayesfactor(experiment.model, tstats)

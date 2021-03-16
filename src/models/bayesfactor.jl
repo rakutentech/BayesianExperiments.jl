@@ -67,38 +67,40 @@ function bayesfactor(model::NormalEffectSize, twostats::TwoNormalStatistics)
 end
 
 """
-    StudentTModel <: BayesFactorModel
+    StudentTEffectSize <: BayesFactorModel
 
 A model with Bayes factor from the Student's t distributions.
 We have a standard effect size model has two hypotheses: ``H_1``(null) an ``H_2``(alternative):
 
-1. ``H_1``: ``\\mu = m_0``
-2. ``H_2``: ``\\mu ≠ m_0``
+1. ``H_0``: ``\\mu = m_0``
+2. ``H_1``: ``\\mu ≠ m_0``
 
 The model uses the Jeffreys-Zellener-Siow (JZS) for μ and σ.
 More specifically, we a Cauchy prior on ``\\mu`` on ``H_2``
 
 ``
-\\mu | \\sigma^2 \\sim \\text{Cauchy}(0, r^2 \\sigma^2)
+\\mu | \\sigma^2 \\sim \\text{Cauchy}(0, r^2)
 ``
 
-and a Jeffrey's prior on ``\\sigma``:
+where ``r`` is a scale parameter that controls the width of the Cauchy distribution. 
+
+And we use a Jeffrey's prior on ``\\sigma``:
 
 ``
-p(\\sigma^2) \\propto \\frac{1}{\\sigma2}
+p(\\sigma^2) \\propto 1  
 ``
 
 on both ``H_1`` and ``H_2``.
 
 """
-struct StudentTModel <: BayesFactorModel
+struct StudentTEffectSize <: BayesFactorModel
     r::Real
     rtol::Real
 end
 
-StudentTModel(;r=0.707, rtol=1e-8) = StudentTModel(r, rtol)
+StudentTEffectSize(;r=0.707, rtol=1e-8) = StudentTEffectSize(r, rtol)
 
-function bayesfactor(model::StudentTModel, stats::StudentTStatistics)
+function bayesfactor(model::StudentTEffectSize, stats::StudentTStatistics)
     t = stats.t
     v = stats.dof
     n = stats.n

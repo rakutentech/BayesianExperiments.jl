@@ -1,4 +1,4 @@
-@testset "StudentTModel" begin
+@testset "StudentTEffectSize" begin
     @testset "One group" begin
         # This example is taken from 5.2 in the Gitbook "Bayesian Statistics":
         # https://statswithr.github.io/book/hypothesis-testing-with-normal-populations.html
@@ -21,7 +21,7 @@
 
         normalstat = NormalStatistics(n=n, meanx=xbar, sdx=0.0523)
         stats = StudentTStatistics(normalstat)
-        model = StudentTModel(r=1.0)
+        model = StudentTEffectSize(r=1.0)
 
         bf = bayesfactor(model, stats)
         @test isapprox(bf, 50.6, rtol=0.01)
@@ -49,7 +49,7 @@
             NormalStatistics(meanx=28.8, sdx=13.5, n=133),
             NormalStatistics(meanx=30.6, sdx=14.3, n=867)
         )
-        model = StudentTModel(r=1.0)
+        model = StudentTEffectSize(r=1.0)
 
         # pooled case
         stats_pooled = StudentTStatistics(normalstats, pooled=true)

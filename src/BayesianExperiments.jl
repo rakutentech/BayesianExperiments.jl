@@ -90,7 +90,7 @@ export
 
     # bayesfactor.jl 
     NormalEffectSize,
-    StudentTModel,
+    StudentTEffectSize,
 
     effectsize,
 

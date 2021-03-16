@@ -134,13 +134,13 @@ end
     end
 end
 
-@testset "StudentTModel" begin
+@testset "StudentTEffectSize" begin
     thresh=5
     normalstats = TwoNormalStatistics(
         NormalStatistics(meanx=28.8, sdx=13.5, n=133),
         NormalStatistics(meanx=30.6, sdx=14.3, n=867)
     )
-    model = StudentTModel(r=1.0)
+    model = StudentTEffectSize(r=1.0)
     stats = StudentTStatistics(normalstats)
 
     bf21_model = bayesfactor(model, stats)
