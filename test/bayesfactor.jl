@@ -65,7 +65,9 @@
     @testset "One sample: Sleep data" begin
         # This example uses the sleep data and "BayesFactor" package in R:
         # https://richarddmorey.github.io/BayesFactor/
-
+        # Environment:
+        # R: 4.0.4
+        # BayesFactor:0.9.12-4.2
         # "sleep" data in R have records of 10 paired observations
         sleepdata = [-1.2, -2.4, -1.3, -1.3, 0.0, -1.0, -1.8, -0.8, -4.6, -1.4]
 
@@ -84,5 +86,52 @@
 
         @test isapprox(bf, 17.259, rtol=0.001)
     end
-    
+
+    @testset "Two samples: Chicken weights" begin
+        # Chicken Weights by Feed Type in R:
+        # Environment:
+        # R: 4.0.4
+        # BayesFactor:0.9.12-4.2
+        #
+        #> t.test(weight ~ feed, data=chickwts, var.eq=TRUE)
+        # 	Two Sample t-test
+        #
+        # data:  weight by feed
+        # t = -2.934, df = 20, p-value = 0.008205
+        # alternative hypothesis: true difference in means is not equal to 0
+        # 95 percent confidence interval:
+        #  -100.17618  -16.92382
+        # sample estimates:
+        # mean in group horsebean   mean in group linseed 
+        #                  160.20                  218.75 
+        #
+        # >bf = ttestBF(
+        #     x=(chickwts%>%filter(feed=="horsebean"))$weight,
+        #     y=(chickwts%>%filter(feed=="linseed"))$weight
+        #     )
+        #
+        # Bayes factor analysis
+        # --------------
+        # [1] Alt., r=0.707 : 5.975741 ±0%
+        #
+        # Against denominator:
+        # Null, mu1-mu2 = 0 
+        # ---
+        # Bayes factor type: BFindepSample, JZS
+        horsebean=[179, 160, 136, 227, 217, 168, 108, 124, 143, 140]
+        linseed=[309, 229, 181, 141, 260, 203, 148, 169, 213, 257, 244, 271]
+
+        stats1 = NormalStatistics(horsebean)
+        stats2 = NormalStatistics(linseed)
+        # Here we assume equal variance
+        tstat = StudentTStatistics(TwoNormalStatistics(stats1, stats2))
+
+        @test isapprox(tstat.t, -2.934, rtol=0.001)
+        @test tstat.dof == 20 
+
+        model = StudentTEffectSize(r=sqrt(2)/2)
+        bf = bayesfactor(model, tstat)
+        @test isapprox(bf, 5.9757,  rtol=0.001)
+    end
+   
 end
