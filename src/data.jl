@@ -181,8 +181,8 @@ function tstatwelch(twostats::TwoNormalStatistics)
     stats2 = twostats[2]
     mu1 = stats1.meanx
     mu2 = stats2.meanx
-    sd1 = stats1.meanx
-    sd2 = stats2.meanx
+    sd1 = stats1.sdx
+    sd2 = stats2.sdx
     n1 = stats1.n
     n2 = stats2.n
     se = sqrt(sd1^2/n1 + sd2^2/n2)
@@ -205,8 +205,8 @@ end
 function StudentTStatistics(twostats::TwoNormalStatistics; pooled=true)
     n1 = twostats[1].n
     n2 = twostats[2].n
-    sd1 = twostats[1].sd
-    sd2 = twostats[2].sd
+    sd1 = twostats[1].sdx
+    sd2 = twostats[2].sdx
 
     if pooled == true
         t = tstatpooled(twostats)
