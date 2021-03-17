@@ -27,6 +27,6 @@ For detailed discussions on many topics in the field, see the Jupyter notebooks 
 
 Open source projects in R related to our project:
 
-- [`bayesTestR`](https://easystats.github.io/bayestestR/)
-- [`bayesAB`](https://github.com/FrankPortman/bayesAB)
-- [`BayesFactor`](https://github.com/richarddmorey/BayesFactor)
+- [easystats/bayestestR](https://github.com/easystats/bayestestR/)
+- [FrankPortman/bayesAB](https://github.com/FrankPortman/bayesAB)
+- [richarddmorey/BayesFactor](https://github.com/richarddmorey/BayesFactor)
