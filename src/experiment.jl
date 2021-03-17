@@ -106,7 +106,7 @@ mutable struct ExperimentBF{M<:BayesFactorModel} <: Experiment
     model::M
     p0::Float64
     winner::Union{String, Nothing}
-    rule::BayesfactorThresh
+    rule::BayesFactorThresh
     stats::Union{NormalStatistics, TwoNormalStatistics, Nothing}
     modelnames::Vector{String} 
 
@@ -289,7 +289,7 @@ end
 function _decide(onesidethresh::OneSidedBFThresh, bayesfactor::Real, modelnames)
     threshold = onesidethresh.threshold
     if bayesfactor > threshold 
-        return modelnames[[2]]
+        return modelnames[2]
     else
         return nothing
     end
