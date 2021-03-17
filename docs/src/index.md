@@ -1,4 +1,4 @@
-# Home
+# BayesianExperiments.jl
 
 This is the documentation of `BayesianExperiments.jl`, a library for conducting Bayesian AB testing in Julia.
 
@@ -35,8 +35,8 @@ dataA = rand(Bernoulli(0.15), n)
 dataB = rand(Bernoulli(0.16), n)
 
 # Define the models
-modelA = BernoulliModel(1, 1)
-modelB = BernoulliModel(1, 1)
+modelA = ConjugateBernoulli(1, 1)
+modelB = ConjugateBernoulli(1, 1)
 
 # Choose the stopping rule that we will use for making decision
 stoppingrule = ExpectedLossThresh(0.0002)
@@ -52,5 +52,5 @@ statsB = BernoulliStatistics(dataB)
 update!(experiment, [statsA, statsB])
 
 # Calculate the metric (expected loss in this case) of each model 
-winner_index, expected_losses = calculatemetrics(experiment)
+winner_index, expected_losses = metrics(experiment)
 ```

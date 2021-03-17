@@ -1,75 +1,117 @@
 module BayesianExperiments
 
-import Base:show
-import Base.convert
 import Statistics: mean, rand, std
+using Base
+using StaticArrays:SVector
 using Distributions: 
-    Beta, Gamma, LogNormal, Bernoulli, Exponential, 
-    ContinuousUnivariateDistribution, InverseGamma, Normal,
-    UnivariateDistribution
+    pdf, 
+    Beta, Gamma, LogNormal, Bernoulli, Exponential, InverseGamma, Normal,
+    ContinuousUnivariateDistribution, UnivariateDistribution
+using QuadGK
 
 include("util.jl")
 include("data.jl")
 include("distribution.jl")
-include("model.jl")
+include("models/common.jl")
+include("models/conjugate.jl")
+include("models/bayesfactor.jl")
 include("rule.jl")
 include("experiment.jl")
 include("simulation.jl")
 
-export Experiment,
-    ExperimentABN,
-    ExperimentAB,
-
+# external dependencies
+export
+    # Distributions.jl
     Bernoulli,
     Exponential,
     Normal,
-    LogNormal,
-    
-    ProbabilisticModel, 
-    ConjugateModel,
-    BernoulliModel,
-    BernoulliStatistics, 
-    BernoulliPosteriorSample,
+    LogNormal
 
-    ExponentialModel,
-    ExponentialStatistics,
-    ExponentialPosteriorSample,
-
-    NormalModel,
-    NormalStatistics,
-    NormalPosteriorSample,
-
-    LogNormalModel,
-    LogNormalStatistics,
-    LogNormalPosteriorSample,
-
-    ChainOperator,
-    ChainedModel, 
-
+# package exports
+export 
+    # shared methods
     update!,
-    selectwinner!, 
-
-    ExpectedLossThresh, 
-    ProbabilityBeatAllThresh,
-
-    apprexpectedloss,
-    apprexpectedlosses, 
-    apprprobbeatall,
     rand, 
     mean,
-    sample_post,
-    sample_stats,
-    calculatemetrics,
-    tolognormalparams,
-    upliftloss,
-    calcexpectedloss,
-
-    Simulation,
-    updateonce!,
-    DataGeneratingDistibutions,
     convert,
+
+    # data.jl
+    BernoulliStatistics, 
+    ExponentialStatistics,
+    NormalStatistics,
+    LogNormalStatistics,
+    TwoNormalStatistics,
+    StudentTStatistics,
+
+    merge,
+    tstat,
+    tstatpooled,
+    tstatwelch,
+
+    # experiment.jl
+    Experiment,
+    ExperimentABN,
+    ExperimentAB,
+    ExperimentBF,
+
+    expectedloss,
+    expectedlosses, 
+    probbeatall,
+    bayesfactor,
+
+    decide!, 
+    upliftloss,
+    metrics,
+        
+    # common.jl
+    ProbabilisticModel, 
+
+    # conjugate.jl
+    ConjugateModel,
+
+    ConjugateBernoulli,
+    BernoulliPosteriorSample,
+
+    ConjugateExponential,
+    ExponentialPosteriorSample,
+
+    ConjugateNormal,
+    NormalPosteriorSample,
+
+    ConjugateLogNormal,
+    LogNormalPosteriorSample,
+
+    ChainedModel, 
+    ChainOperator,
+
+    samplepost,
+    samplestats,
+    lognormalparams,
+
+    # bayesfactor.jl 
+    NormalEffectSize,
+    StudentTEffectSize,
+
+    effectsize,
+
+    # rule.jl
+    ExpectedLossThresh, 
+    ProbabilityBeatAllThresh,
+    OneSidedBFThresh,
+    TwoSidedBFThresh,
+
+    # simulation.jl
+    Simulation,
+    DataGeneratingDistibutions,
+
     runonce,
     runsequential,
-    unnest
+    updateonce!,
+
+    # util.jl
+    catbyrow,
+    zstat,
+    effsamplesize,
+    pooledsd
 
 end # module

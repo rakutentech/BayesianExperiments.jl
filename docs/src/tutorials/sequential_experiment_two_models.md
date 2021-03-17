@@ -18,8 +18,8 @@ A Bernoulli model is a model with Bernoulli distribution as the likelihood and B
 ```julia
 α = 1
 β = 1
-modelA = BernoulliModel(α, β)
-modelB = BernoulliModel(α, β)
+modelA = ConjugateBernoulli(α, β)
+modelB = ConjugateBernoulli(α, β)
 models = [modelA, modelB]
 modelnames = ["control", "variant 1"];
 ```
@@ -67,11 +67,11 @@ for _ = 1:max_days
     
     # calculate the metrics (expected loss)
     # this step is optional, for visualization below
-    _, losses = calculatemetrics(experiment)
+    _, losses = metrics(experiment)
     push!(expected_losses, losses)
     
     # select winner, get "nothing" if there is no winner
-    winner = selectwinner!(experiment)
+    winner = decide!(experiment)
     
     # stop the experiment if we already find a winner
     if winner !== nothing
@@ -84,7 +84,7 @@ Now we can visualize the expected losses over days. We can see the expected loss
 
 
 ```julia
-plot(collect(1:day), unnest(expected_losses), 
+plot(collect(1:day), catbyrow(expected_losses), 
     title="Expected Losses",
     label=["Control" "Variant 1"],
     legend=:topleft,)

@@ -31,8 +31,8 @@ We start our model with priors $α=10$ and $β=90$.
 ```julia
 α = 10
 β = 90
-modelA = BernoulliModel(α, β)
-modelB = BernoulliModel(α, β)
+modelA = ConjugateBernoulli(α, β)
+modelB = ConjugateBernoulli(α, β)
 models = [modelA, modelB]
 modelnames = ["old", "new"];
 ```
@@ -111,8 +111,8 @@ thresholds = [collect(range(1e-6, 9e-6, length=5)); collect(range(1.1e-5, 1e-4, 
 ```julia
 α = 100
 β = 99900
-modelA = BernoulliModel(α, β)
-modelB = BernoulliModel(α, β)
+modelA = ConjugateBernoulli(α, β)
+modelB = ConjugateBernoulli(α, β)
 models = [modelA, modelB]
 modelnames = ["old", "new"];
 ```

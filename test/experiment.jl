@@ -1,6 +1,3 @@
-using BayesianExperiments
-include("utils.jl")
-
 @testset "Expected Loss" begin
 
     @testset "calculate expected loss" begin
@@ -8,40 +5,40 @@ include("utils.jl")
         n = 5
         sampleA = [1, 1, 1, 0, 0]
         sampleB = [1, 0, 0, 1, 0]
-        @test calcexpectedloss(sampleA, sampleB, upliftloss, 5) == 0.2
-        @test calcexpectedloss(sampleB, sampleA, upliftloss, 5) == 0.4
+        @test expectedloss(sampleA, sampleB, upliftloss, 5) == 0.2
+        @test expectedloss(sampleB, sampleA, upliftloss, 5) == 0.4
     end
 
     @testset "Approximate expected loss from posteriors" begin
         Random.seed!(1234)
         n = 10000
-        modelA = BernoulliModel(50, 50)
-        modelB = BernoulliModel(60, 40)
+        modelA = ConjugateBernoulli(50, 50)
+        modelB = ConjugateBernoulli(60, 40)
 
-        exploss = apprexpectedloss(modelA, modelB, [:θ], lossfunc=upliftloss, numsamples=n)
+        exploss = expectedloss(modelA, modelB, [:θ], lossfunc=upliftloss, numsamples=n)
         @test isapprox(exploss, 0.1, atol=0.01)
 
-        exploss = apprexpectedloss(modelB, modelA, [:θ], lossfunc=upliftloss, numsamples=n)
+        exploss = expectedloss(modelB, modelA, [:θ], lossfunc=upliftloss, numsamples=n)
         @test isapprox(exploss, 0.0, atol=0.01)
     end
 
     @testset "Approximate expected loss from experiment" begin
         Random.seed!(1234)
         n = 10000
-        modelA = BernoulliModel(50, 50)
-        modelB = BernoulliModel(60, 40)
+        modelA = ConjugateBernoulli(50, 50)
+        modelB = ConjugateBernoulli(60, 40)
 
-        exploss = apprexpectedloss(modelA, modelB, lossfunc=upliftloss, numsamples=n)
+        exploss = expectedloss(modelA, modelB, lossfunc=upliftloss, numsamples=n)
         @test isapprox(exploss, 0.1, atol=0.01)
 
         stoppingrule = ExpectedLossThresh(0.001)
         experiment = ExperimentAB([modelA, modelB], stoppingrule)
 
-        (modelnames, expectedlosses) = apprexpectedlosses(experiment, lossfunc=upliftloss, numsamples=n)
+        (modelnames, explosses) = expectedlosses(experiment, lossfunc=upliftloss, numsamples=n)
 
         @test modelnames == ["control", "variant 1"]
-        @test isapprox(expectedlosses[1], 0.1, atol=0.01)
-        @test isapprox(expectedlosses[2], 0.0, atol=0.01)
+        @test isapprox(explosses[1], 0.1, atol=0.01)
+        @test isapprox(explosses[2], 0.0, atol=0.01)
     end
 
 end
@@ -68,19 +65,17 @@ end
         statsB2 = LogNormalStatistics(dataB2)
 
         modelA = ChainedModel(
-            [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
-            [ChainOperator.multiply]
+            [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
         )
         modelB = ChainedModel(
-            [BernoulliModel(1, 1), LogNormalModel(0.0, 1.0, 0.001, 0.001)],
-            [ChainOperator.multiply]
+            [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
         )
 
         stoppingrule = ExpectedLossThresh(0.001)
         experiment = ExperimentAB([modelA, modelB], stoppingrule)
         update!(experiment, [[statsA1, statsA2], [statsB1, statsB2]])
 
-        modelnames, expected_losses = apprexpectedlosses(experiment)
+        modelnames, explosses = expectedlosses(experiment)
 
         @testset "Control Group" begin
             model1_list = experiment.models["control"].models
@@ -94,10 +89,115 @@ end
 
         @testset "Expected loss" begin
             @test modelnames == ["control", "variant 1"]
-            @test expected_losses[1] ≈ 0.016
-            @test expected_losses[2] ≈ 0
+            @test explosses[1] ≈ 0.016
+            @test explosses[2] ≈ 0
         end
 
-        @test selectwinner!(experiment) == "variant 1"
+        @test decide!(experiment) == "variant 1"
+    end
+end
+
+
+
+@testset "ExperiemntBF{NormalEffectSize}" begin
+    @testset "Bayes factor calculation" begin
+        # the example is taken from 
+        # https://statswithr.github.io/book/hypothesis-testing-with-normal-populations.html
+        n0 = 32.7^2
+        m0 = 0.5
+        x̄ = 0.500177
+        σ = 0.5
+        n = 1.0449e8;
+        σ0 = 1/sqrt(n0)
+
+        model = NormalEffectSize(m0, σ0)
+        stats = NormalStatistics(n=1.0449e8, meanx=x̄, sdx=σ)
+        bf10 = bayesfactor(model, stats)
+        @test isapprox(bf10, 2.2303, rtol=0.001)
+    end
+
+    @testset "Two samples with equal size and sd" begin
+        n0 = 32.7^2
+        m0 = 0.5 # null hypothesis: difference is 0.5 
+        σ = 0.5
+        n = 1.0449e8;
+        σ0 = 1/sqrt(n0)
+
+        # 2*n so that the effective sample size will be `n`
+        stats1 = NormalStatistics(n=2*n, meanx=1.000177, sdx=σ)
+        stats2 = NormalStatistics(n=2*n, meanx=0.5, sdx=σ)
+        stats = TwoNormalStatistics(stats1, stats2)
+
+        model = NormalEffectSize(m0, σ0)
+        bf10 = bayesfactor(model, stats)
+        @test isapprox(bf10, 2.2303, rtol=0.001)
+    end
+end
+
+@testset "ExperiemntBF{StudentTEffectSize}" begin
+    @testset "Null wins, thresh=5" begin
+        normalstats = TwoNormalStatistics(
+            NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+            NormalStatistics(meanx=30.6, sdx=14.3, n=867)
+        )
+        model = StudentTEffectSize(r=1.0)
+        stats = StudentTStatistics(normalstats)
+        bf10_model = bayesfactor(model, stats)
+
+        thresh=5
+        stoppingrule = TwoSidedBFThresh(thresh)
+        experiment = ExperimentBF(model=model, rule=stoppingrule)
+        update!(experiment, normalstats)
+        bf10_exp = bayesfactor(experiment)
+
+        @test bf10_model == bf10_exp
+        @test isapprox(bf10_exp, 1/5.45, rtol=0.01)
+
+        winner = decide!(experiment)
+        @test winner == "null"
+    end
+
+    @testset "Alternative wins, thresh=5" begin
+        normalstats = TwoNormalStatistics(
+            NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+            NormalStatistics(meanx=33.6, sdx=14.3, n=867)
+        )
+        model = StudentTEffectSize(r=1.0)
+        stats = StudentTStatistics(normalstats)
+        bf10_model = bayesfactor(model, stats)
+
+        thresh=5
+        stoppingrule = TwoSidedBFThresh(thresh)
+        experiment = ExperimentBF(model=model, rule=stoppingrule)
+        update!(experiment, normalstats)
+        bf10_exp = bayesfactor(experiment)
+
+        @test bf10_model == bf10_exp
+        @test isapprox(bf10_exp, 46.6077, rtol=0.01)
+
+        winner = decide!(experiment)
+        @test winner == "alternative"
+    end
+
+    @testset "No winners, thresh=0.01" begin
+        normalstats = TwoNormalStatistics(
+            NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+            NormalStatistics(meanx=30.6, sdx=14.3, n=867)
+        )
+        model = StudentTEffectSize(r=1.0)
+        stats = StudentTStatistics(normalstats)
+        bf10_model = bayesfactor(model, stats)
+
+        thresh=20
+        stoppingrule = TwoSidedBFThresh(thresh)
+        experiment = ExperimentBF(model=model, rule=stoppingrule)
+        update!(experiment, normalstats)
+        bf10_exp = bayesfactor(experiment)
+
+        @test bf10_model == bf10_exp
+        @test isapprox(bf10_exp, 1/5.45, rtol=0.01)
+
+        winner = decide!(experiment)
+        @test winner === nothing 
     end
 end

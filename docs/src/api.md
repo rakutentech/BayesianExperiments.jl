@@ -3,10 +3,10 @@
 ```@docs
 ProbabilisticModel
 ConjugateModel
-BernoulliModel
-ExponentialModel
-NormalModel
-LogNormalModel
+ConjugateBernoulli
+ConjugateExponential
+ConjugateNormal
+ConjugateLogNormal
 ChainedModel
 ```
 

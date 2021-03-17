@@ -6,6 +6,9 @@ using Statistics:std
 using BayesianExperiments
 include("utils.jl")
 
+include("util.jl")
+include("data.jl")
 include("experiment.jl")
-include("model.jl")
+include("conjugate.jl")
+include("bayesfactor.jl")
 include("simulation.jl")
