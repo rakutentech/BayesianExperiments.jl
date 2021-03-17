@@ -16,9 +16,9 @@ Current features include:
 
 For usage instructions and tutorials, see [documentation][1].
 
-For detailed discussions on many topics in the filed, see the Jupyter notebooks in the `examples` folder:
+For detailed discussions on many topics in the field, see the Jupyter notebooks in the `examples` folder:
 
-- [Sequential Experiemnt with Two Models](examples/sequential_experiment_two_models.ipynb)
+- [Sequential Experiment with Two Models](examples/sequential_experiment_two_models.ipynb)
 - [Type S Error of Fixed Horizon and Sequential Test Experiement](examples/fixed_vs_sequentail_type_s_error.ipynb)
 
 [1]: https://rakutentech.github.io/BayesianExperiments.jl/dev/
