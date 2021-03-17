@@ -145,7 +145,7 @@ end
         bf10_model = bayesfactor(model, stats)
 
         thresh=5
-        stoppingrule = BayesFactorThresh(thresh)
+        stoppingrule = TwoSidedBFThresh(thresh)
         experiment = ExperimentBF(model=model, rule=stoppingrule)
         update!(experiment, normalstats)
         bf10_exp = bayesfactor(experiment)
@@ -167,7 +167,7 @@ end
         bf10_model = bayesfactor(model, stats)
 
         thresh=5
-        stoppingrule = BayesFactorThresh(thresh)
+        stoppingrule = TwoSidedBFThresh(thresh)
         experiment = ExperimentBF(model=model, rule=stoppingrule)
         update!(experiment, normalstats)
         bf10_exp = bayesfactor(experiment)
@@ -189,7 +189,7 @@ end
         bf10_model = bayesfactor(model, stats)
 
         thresh=20
-        stoppingrule = BayesFactorThresh(thresh)
+        stoppingrule = TwoSidedBFThresh(thresh)
         experiment = ExperimentBF(model=model, rule=stoppingrule)
         update!(experiment, normalstats)
         bf10_exp = bayesfactor(experiment)

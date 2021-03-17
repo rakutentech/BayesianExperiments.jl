@@ -3,25 +3,27 @@ abstract type BayesFactorModel <: ProbabilisticModel end
 """
 EffectSizeModel <: ProbabilisticModel
 
-A standard effect size model has two hypotheses: ``H_1``(null) an ``H_2``(alternative):
+A standard effect size model has two hypotheses: ``H_0``(null) an ``H_1``(alternative):
 
-1. ``H_1``: ``\\mu = m_0``
-2. ``H_2``: ``\\mu ≠ m_0``
+1. ``H_0``: ``\\mu = m_0``
+2. ``H_1``: ``\\mu ≠ m_0``
 
 with the population mean ``\\mu`` and pre-specified standard deviation ``\\sigma``. We want to test whether 
-``\\mu`` is equal to ``m_0`` or not.
+``\\mu`` is equal to ``\\mu_0`` or not.
 
 The prior of the standard effect size is 
 
 ``
-\\delta | H_2 \\sim \\text{Normal}(0, n_0)
+\\delta | H_1 \\sim \\text{Normal}(0, \\sigma_0^2)
 ``
 
-where ``\\delta`` is the standard effect size and ``n_0`` can be considered as a prior sample size. 
+where ``\\delta`` is the standard effect size. When ``\\sigma_0 = 1``the prior is called 
+*unit-information* prior.  
+
 The standard effect size ``\\delta`` is defined as 
 
 ``
-\\delta = \\frac{\\mu - m_0}{\\sigma}.
+\\delta = \\frac{\\mu - \\mu_0}{\\sigma}.
 ``
 
 In practice, the standard deviations are unknown but in large sample scenario we assume 
@@ -30,7 +32,7 @@ they are known and use their estimates.
 ## Fileds
 
 - `μ0`: mean of null hypothesis
-- `n0`: Prior sample size. `1/n0` is the prior standard deviation.
+- `σ0`: The prior standard deviation of the effect size.
 
 ## Methods
 
@@ -41,12 +43,11 @@ bayesfactor(model, twostats) # calculate Bayes factor from two group's statistic
 
 ## References
 
-1. [Chapter 5 hypothesis Testing with Normal Populations](
-https://statswithr.github.io/book/hypothesis-testing-with-normal-populations.html) 
-in *An Introduction to Bayesian Thinking*.
+1. [Chapter 5 hypothesis Testing with Normal Populations](https://statswithr.github.io/book/hypothesis-testing-with-normal-populations.html) 
+   in *An Introduction to Bayesian Thinking*.
 2. Deng, Alex, Jiannan Lu, and Shouyuan Chen. "Continuous monitoring of A/B tests without pain: 
-Optional stopping in Bayesian testing." 2016 IEEE international conference on data science 
-and advanced analytics (DSAA). IEEE, 2016.
+   Optional stopping in Bayesian testing." 2016 IEEE international conference on data science 
+   and advanced analytics (DSAA). IEEE, 2016.
 """
 struct NormalEffectSize <: BayesFactorModel
     μ0::Float64

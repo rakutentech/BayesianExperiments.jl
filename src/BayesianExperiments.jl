@@ -97,7 +97,8 @@ export
     # rule.jl
     ExpectedLossThresh, 
     ProbabilityBeatAllThresh,
-    BayesFactorThresh,
+    OneSidedBFThresh,
+    TwoSidedBFThresh,
 
     # simulation.jl
     Simulation,

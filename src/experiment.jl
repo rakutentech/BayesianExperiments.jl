@@ -106,7 +106,7 @@ mutable struct ExperimentBF{M<:BayesFactorModel} <: Experiment
     model::M
     p0::Float64
     winner::Union{String, Nothing}
-    rule::BayesFactorThresh
+    rule::TwoSidedBFThresh
     stats::Union{NormalStatistics, TwoNormalStatistics, Nothing}
     modelnames::Vector{String} 
 
@@ -281,13 +281,27 @@ end
 function decide!(experiment::ExperimentBF)
     modelnames = experiment.modelnames
     bayesfactor = metrics(experiment)
-    threshold = experiment.rule.threshold
-    if bayesfactor > threshold 
-        experiment.winner = modelnames[2] 
-    elseif bayesfactor < 1/threshold
-        experiment.winner = modelnames[1]
-    else
-        experiment.winner = nothing 
-    end
+    rule = experiment.rule
+    experiment.winner = _decide(rule, bayesfactor, modelnames)
     return experiment.winner
+end
+
+function _decide(onesidethresh::OneSidedBFThresh, bayesfactor::Real, modelnames)
+    threshold = onesidethresh.threshold
+    if bayesfactor > threshold 
+        return modelnames[[2]]
+    else
+        return nothing
+    end
+end
+
+function _decide(twosidethresh::TwoSidedBFThresh, bayesfactor::Real, modelnames)
+    threshold = twosidethresh.threshold
+    if bayesfactor > threshold 
+        return modelnames[2]
+    elseif bayesfactor < 1/threshold
+        return modelnames[1]
+    else
+        return nothing
+    end
 end
