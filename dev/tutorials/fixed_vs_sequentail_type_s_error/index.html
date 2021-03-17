@@ -8,8 +8,8 @@ datagendistA = Bernoulli(θ1)
 datagendistB = Bernoulli(θ2)
 datagendists = [datagendistA, datagendistB];</code></pre><p>We start our model with priors <span>$α=10$</span> and <span>$β=90$</span>.</p><pre><code class="language-julia">α = 10
 β = 90
-modelA = BernoulliModel(α, β)
-modelB = BernoulliModel(α, β)
+modelA = ConjugateBernoulli(α, β)
+modelB = ConjugateBernoulli(α, β)
 models = [modelA, modelB]
 modelnames = [&quot;old&quot;, &quot;new&quot;];</code></pre><p>We want to use &quot;expected loss&quot; as the key metric for our decision, and a &quot;threshold of caring&quot; of 0.00001 as the stopping rule of our experiment.</p><pre><code class="language-julia">thresh = 0.00001
 stoppingrule = ExpectedLossThresh(thresh);</code></pre><p>Now we can setup the experiment. </p><pre><code class="language-julia">experiment = ExperimentAB(models, stoppingrule, modelnames=modelnames);</code></pre><h2 id="Fixed-Horizon"><a class="docs-heading-anchor" href="#Fixed-Horizon">Fixed Horizon</a><a id="Fixed-Horizon-1"></a><a class="docs-heading-anchor-permalink" href="#Fixed-Horizon" title="Permalink"></a></h2><p>We can run simulation to analyze how will this experiment perform in reality.  For the first simulation, we want to use a fixed horizon that  we only see the result once after 20 days, and make decision at that point.</p><pre><code class="language-julia">simulation_fix = Simulation(
@@ -35,8 +35,8 @@ numsteps, winners, metricvals = runsequential(simulation_sequential, numsamples=
 type_s_error_rate = sum(winners .== &quot;new&quot;) / 100
 println(&quot;Ratio of new variant wins:&quot;, type_s_error_rate)</code></pre><pre><code class="language-none">Ratio of new variants wins:0.11</code></pre><h2 id="Expected-Loss-Thresholds-vs.-Resulting-Loss"><a class="docs-heading-anchor" href="#Expected-Loss-Thresholds-vs.-Resulting-Loss">Expected Loss Thresholds vs. Resulting Loss</a><a id="Expected-Loss-Thresholds-vs.-Resulting-Loss-1"></a><a class="docs-heading-anchor-permalink" href="#Expected-Loss-Thresholds-vs.-Resulting-Loss" title="Permalink"></a></h2><pre><code class="language-julia">thresholds = [collect(range(1e-6, 9e-6, length=5)); collect(range(1.1e-5, 1e-4, length=5))];</code></pre><pre><code class="language-julia">α = 100
 β = 99900
-modelA = BernoulliModel(α, β)
-modelB = BernoulliModel(α, β)
+modelA = ConjugateBernoulli(α, β)
+modelB = ConjugateBernoulli(α, β)
 models = [modelA, modelB]
 modelnames = [&quot;old&quot;, &quot;new&quot;];</code></pre><pre><code class="language-julia">resulting_losses_fixed = Float64[]
 type_s_error_rates_fixed = Float64[]
@@ -121,4 +121,4 @@ plot(thresholds,
     xticks=thresholds[5:end],
     xlabel=&quot;Threshold of expected loss&quot;,
     xguidefontsize=10
-)</code></pre><p><img src="../fixed_vs_sequentail_type_s_error_files/fixed_vs_sequentail_type_s_error_25_0.svg" alt="svg"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../sequential_experiment_two_models/">« Sequential Experiment with Two Models</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 12 March 2021 01:21">Friday 12 March 2021</span>. Using Julia version 1.5.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+)</code></pre><p><img src="../fixed_vs_sequentail_type_s_error_files/fixed_vs_sequentail_type_s_error_25_0.svg" alt="svg"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../sequential_experiment_two_models/">« Sequential Experiment with Two Models</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 17 March 2021 23:52">Wednesday 17 March 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
