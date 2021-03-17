@@ -106,7 +106,7 @@ mutable struct ExperimentBF{M<:BayesFactorModel} <: Experiment
     model::M
     p0::Float64
     winner::Union{String, Nothing}
-    rule::TwoSidedBFThresh
+    rule::BayesfactorThresh
     stats::Union{NormalStatistics, TwoNormalStatistics, Nothing}
     modelnames::Vector{String} 
 
