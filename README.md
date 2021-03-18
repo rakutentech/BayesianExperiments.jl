@@ -3,7 +3,7 @@
 [![Latest Doc](https://img.shields.io/badge/docs-latest-blue.svg)][1]
 [![codecov](https://codecov.io/gh/rakutentech/BayesianExperiments.jl/branch/main/graph/badge.svg?token=DOZ0HIW1V8)](https://codecov.io/gh/rakutentech/BayesianExperiments.jl)
 
-`BayesianExperiments.jl` provides a toolbox for running various types of Bayesian AB test experiments.
+`BayesianExperiments.jl` provides a toolbox for running various types of Bayesian AB testing experiments.
 
 Current features include:
 
