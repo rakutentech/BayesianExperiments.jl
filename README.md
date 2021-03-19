@@ -20,7 +20,7 @@ For detailed discussions on many topics in the field, see the Jupyter notebooks 
 
 - [Sequential Experiment with Two Models](examples/sequential_testing_conjugate_models.ipynb)
 - [Type S Error in Fixed Horizon and Sequential Test Experiment](examples/type_s_error.ipynb)
-- [Bayes Factor with Optional Stopping](examples/bayes_factor_optional_stopping.ipynb)
+- [Bayes Factor Experiment with Optional Stopping](examples/bayes_factor_optional_stopping.ipynb)
 
 [1]: https://rakutentech.github.io/BayesianExperiments.jl/dev/
 
