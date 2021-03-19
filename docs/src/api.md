@@ -1,4 +1,4 @@
-## Probabilistic Models
+## Conjugate Models
 
 ```@docs
 ProbabilisticModel
@@ -10,11 +10,20 @@ ConjugateLogNormal
 ChainedModel
 ```
 
+## Bayes Factor Models
+
+```@docs
+NormalEffectSize
+StudentTEffectSize
+```
+
 ## Stopping Rules
 
 ```@docs
 ExpectedLossThresh
 ProbabilityBeatAllThresh
+OneSidedBFThresh
+TwoSidedBFThresh
 ```
 
 ## Experiment
@@ -23,6 +32,7 @@ ProbabilityBeatAllThresh
 Experiment
 ExperimentABN
 ExperimentAB
+ExperimentBF
 ```
 
 ## Simulation

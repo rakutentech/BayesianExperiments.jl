@@ -1,6 +1,6 @@
-# Bayes Factor Models
+# Examples: Bayes Factor Models
 
-## One group
+## Example: One group
 
 This example uses the sleep data in R:
 
@@ -31,7 +31,8 @@ update!(experiment, normalstats)
 # make decision on the experiment
 decide!(experiment)
 ```
-## Two groups
+
+## Example: Two groups
 
 This example uses the `Chicken Weights by Feed Type` in `R`.
 

@@ -1,7 +1,7 @@
 abstract type BayesFactorModel <: ProbabilisticModel end
 
 """
-EffectSizeModel <: ProbabilisticModel
+NormalEffectSize <: EffectSizeModel
 
 A standard effect size model has two hypotheses: ``H_0``(null) an ``H_1``(alternative):
 

@@ -1,4 +1,4 @@
-# Conjugate Models
+# Examples: Conjugate Models
 
 ## Example: Two Models
 
