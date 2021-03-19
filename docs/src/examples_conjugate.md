@@ -1,3 +1,5 @@
+# Examples: Conjugate Models
+
 ## Example: Two Models
 
 A basic example showing an experiment with two models.
@@ -45,7 +47,7 @@ using BayesianExperiments
 n = 1000
 dataA = rand(Bernoulli(0.150), n)
 dataB = rand(Bernoulli(0.145), n)
-dataC = rand(Bernoulli(0.152), n)
+dataC = rand(Bernoulli(0.180), n)
 
 # Define the models
 modelA = ConjugateBernoulli(1, 1)
@@ -56,7 +58,7 @@ modelC = ConjugateBernoulli(1, 1)
 stoppingrule = ProbabilityBeatAllThresh(0.99)
 
 # Setup the experiment
-experiment = ExperimentAB([modelA, modelB, modelC], stoppingrule)
+experiment = ExperimentABN([modelA, modelB, modelC], stoppingrule)
 
 # Calculate the statistics from our sample data
 statsA = BernoulliStatistics(dataA)
@@ -85,7 +87,7 @@ using BayesianExperiments
 n = 1000
 dataA1 = rand(Bernoulli(0.050), n)
 dataA2 = rand(LogNormal(1.0, 1.0), n)
-dataB1 = rand(Bernoulli(0.055), n)
+dataB1 = rand(Bernoulli(0.060), n)
 dataB2 = rand(LogNormal(1.0, 1.0), n)
 
 # Calculate the statistics from our sample data
@@ -97,11 +99,11 @@ statsB2 = LogNormalStatistics(dataB2)
 # Setup the experiment
 modelA = ChainedModel(
     [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
-    [op_multiply]
+    [MultiplyOperator()]
 )
 modelB = ChainedModel(
     [ConjugateBernoulli(1, 1), ConjugateLogNormal(0.0, 1.0, 0.001, 0.001)],
-    [op_multiply]
+    [MultiplyOperator()]
 )
 
 # Choose the stopping rule
@@ -117,7 +119,7 @@ update!(experiment, [[statsA1, statsA2], [statsB1, statsB2]])
 winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = decide!(experiment))
+winner = decide!(experiment)
 ```
 
 ## Example: Power Analysis

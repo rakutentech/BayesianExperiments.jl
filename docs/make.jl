@@ -7,11 +7,14 @@ makedocs(
     doctest = false,
     pages = [
         "Home" => "index.md",
-        "Getting Started" => "basic_examples.md",
+        "Getting Started" => [
+            "examples_conjugate.md", 
+            "examples_bayesfactor.md"],
         "API" => "api.md",
         "Tutorials" => [ 
-            "tutorials/sequential_experiment_two_models.md",
-            "tutorials/fixed_vs_sequentail_type_s_error.md"
+            "tutorials/sequential_testing_conjugate_models.md",
+            "tutorials/type_s_error.md",
+            "tutorials/bayes_factor_optional_stopping.md"
         ]
     ]
 )

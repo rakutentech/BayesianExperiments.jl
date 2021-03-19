@@ -1,4 +1,4 @@
-# Sequential Experiment with Two Models
+# Sequential Testing Experiment with Conjugate Models
 
 
 ```julia
@@ -95,6 +95,8 @@ annotate!(1.5, 0.0002, text("Threshold", 10))
 
 
 
-![svg](sequential_experiment_two_models_files/sequential_experiment_two_models_12_0.svg)
+    
+![svg](sequential_testing_conjugate_models_files/sequential_testing_conjugate_models_12_0.svg)
+    
 
 

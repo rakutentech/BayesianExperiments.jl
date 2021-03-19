@@ -19,7 +19,7 @@ mutable struct ExperimentABN{T,n} <: Experiment
 
     function ExperimentABN{T,n}(models, rule::T; modelnames=nothing) where {T <: StoppingRule,n}
         length(models) >= 2 || throw(ArgumentError("Number of models needs to be greater than 1."))
-        length(models) == n || throw(ArgumentError("Number of models needs to be equal to n."))
+        length(models) == n || throw(ArgumentError("Number of models needs to be equal to $n."))
         
         if modelnames === nothing
             modelnames = ["control"]
@@ -82,31 +82,29 @@ end
 """
     ExperimentBF{M} <: Experiment
 
-`BayesFactorExperiment` is an experiment using a Bayes Factor between the 
+`ExperimentBF` is an experiment using a Bayes Factor between the 
 null and alternative hypothesis as the stopping rule.
 
 # Constructors
 
-    ExperimentBF(model, p0, rule; kwargs...)
+    ExperimentBF(kwargs...)
 
-## Arguments
-
-- `model::M`: Prior of effect size of alternative hypothesis 
-- `p0::Float64`: Probablity of null hypothesis
-- `rejection::Bool`: Decision to reject the null hypothesis or not
-- `rule::BayesFactorThresh`: Stopping rule using Bayes Factor as the threshold
 
 ## Keywords
 
+- `model::M`: Prior of effect size of alternative hypothesis 
+- `p0::Float64`: Probablity of null hypothesis
+- `winner::Union{String, Nothing`: Decision to reject the null hypothesis or not
+- `rule::BayesFactorThresh`: Stopping rule using Bayes Factor as the threshold
 - `stats`: Statistics for calculating the bayes factor. Default is `nothing`.
-- `names`: Names of the hypotheses. Default is `["null", "alternative"]`.
+- `modelnames`: Names of the hypotheses. Default is `["null", "alternative"]`.
 
 """
 mutable struct ExperimentBF{M<:BayesFactorModel} <: Experiment
     model::M
     p0::Float64
     winner::Union{String, Nothing}
-    rule::TwoSidedBFThresh
+    rule::BayesFactorThresh
     stats::Union{NormalStatistics, TwoNormalStatistics, Nothing}
     modelnames::Vector{String} 
 
@@ -289,7 +287,7 @@ end
 function _decide(onesidethresh::OneSidedBFThresh, bayesfactor::Real, modelnames)
     threshold = onesidethresh.threshold
     if bayesfactor > threshold 
-        return modelnames[[2]]
+        return modelnames[2]
     else
         return nothing
     end

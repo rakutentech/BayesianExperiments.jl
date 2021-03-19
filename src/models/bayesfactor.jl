@@ -1,7 +1,7 @@
 abstract type BayesFactorModel <: ProbabilisticModel end
 
 """
-EffectSizeModel <: ProbabilisticModel
+NormalEffectSize <: EffectSizeModel
 
 A standard effect size model has two hypotheses: ``H_0``(null) an ``H_1``(alternative):
 
@@ -31,8 +31,9 @@ they are known and use their estimates.
 
 ## Fileds
 
-- `μ0`: mean of null hypothesis
+- `μ0`: mean of null hypothesis.
 - `σ0`: The prior standard deviation of the effect size.
+- `p0`: prior belief of ``H_0``. This is used to calculate the prior odds. Default ``0.5``.
 
 ## Methods
 
@@ -52,14 +53,19 @@ bayesfactor(model, twostats) # calculate Bayes factor from two group's statistic
 struct NormalEffectSize <: BayesFactorModel
     μ0::Float64
     σ0::Float64
+    p0::Float64
 end
+
+NormalEffectSize(μ0, σ0) = NormalEffectSize(μ0, σ0, 0.5)
+NormalEffectSize(;μ0=0.0, σ0=1.0, p0=0.5) = NormalEffectSize(μ0, σ0, p0)
 
 function bayesfactor(model::NormalEffectSize, stats::NormalStatistics)
     n = stats.n 
     σ0 = model.σ0
     δ = effectsize(stats, μ0=model.μ0)
     bf10 = pdf(Normal(0, sqrt(σ0^2+1/n)), δ)/pdf(Normal(0, sqrt(1/n)), δ) 
-    return bf10
+    priorodds = _priorodds(model) 
+    return priorodds*bf10
 end
 
 function bayesfactor(model::NormalEffectSize, twostats::TwoNormalStatistics)
@@ -91,6 +97,13 @@ p(\\sigma^2) \\propto \\frac{1}{\\sigma2}
 
 for both ``H_0`` and ``H_1``.
 
+## Fields
+
+- ``r``: Prior standard deviation of the effect size. 
+- ``rtol``: Numerical tolerence fo the ``quadgk`` function used in the denominator calculation.
+- ``p0``: prior belief of ``H_0``. This is used to calculate the prior odds. Default ``0.5``.
+
+
 ## References
 
 - Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. (2009). Bayesian t tests 
@@ -100,9 +113,10 @@ for both ``H_0`` and ``H_1``.
 struct StudentTEffectSize <: BayesFactorModel
     r::Real
     rtol::Real
+    p0::Real
 end
 
-StudentTEffectSize(;r=0.707, rtol=1e-8) = StudentTEffectSize(r, rtol)
+StudentTEffectSize(;r=0.707, rtol=1e-8, p0=0.5) = StudentTEffectSize(r, rtol, p0)
 
 function bayesfactor(model::StudentTEffectSize, stats::StudentTStatistics)
     t = stats.t
@@ -120,5 +134,11 @@ function bayesfactor(model::StudentTEffectSize, stats::StudentTStatistics)
         rtol=rtol)
 
     # we take invserse to get b_1_0, instead of b_0_1
-    return denominator/numerator
+    priorodds = _priorodds(model) 
+    return priorodds * denominator/numerator
+end
+
+function _priorodds(model::BayesFactorModel)
+    p0 = model.p0
+    return (1-p0)/p0
 end

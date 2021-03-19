@@ -95,8 +95,25 @@ end
 
         @test decide!(experiment) == "variant 1"
     end
+
+
 end
 
+@testset "Number of models" begin
+    # Generate sample data
+    n = 1000
+    dataA = rand(Bernoulli(0.150), n)
+    dataB = rand(Bernoulli(0.145), n)
+    dataC = rand(Bernoulli(0.180), n)
+
+    # Define the models
+    modelA = ConjugateBernoulli(1, 1)
+    modelB = ConjugateBernoulli(1, 1)
+    modelC = ConjugateBernoulli(1, 1)
+
+    stoppingrule = ProbabilityBeatAllThresh(0.99)
+    @test_throws ArgumentError("Number of models needs to be equal to 2.") ExperimentAB([modelA, modelB, modelC], stoppingrule)
+end
 
 
 @testset "ExperiemntBF{NormalEffectSize}" begin
@@ -135,7 +152,7 @@ end
 end
 
 @testset "ExperiemntBF{StudentTEffectSize}" begin
-    @testset "Null wins, thresh=5" begin
+    @testset "Two-Sided null wins, thresh=5" begin
         normalstats = TwoNormalStatistics(
             NormalStatistics(meanx=28.8, sdx=13.5, n=133),
             NormalStatistics(meanx=30.6, sdx=14.3, n=867)
@@ -157,7 +174,7 @@ end
         @test winner == "null"
     end
 
-    @testset "Alternative wins, thresh=5" begin
+    @testset "Two-Sided alternative wins, thresh=5" begin
         normalstats = TwoNormalStatistics(
             NormalStatistics(meanx=28.8, sdx=13.5, n=133),
             NormalStatistics(meanx=33.6, sdx=14.3, n=867)
@@ -179,7 +196,7 @@ end
         @test winner == "alternative"
     end
 
-    @testset "No winners, thresh=0.01" begin
+    @testset "Two-Sided no winners, thresh=0.01" begin
         normalstats = TwoNormalStatistics(
             NormalStatistics(meanx=28.8, sdx=13.5, n=133),
             NormalStatistics(meanx=30.6, sdx=14.3, n=867)
@@ -199,5 +216,49 @@ end
 
         winner = decide!(experiment)
         @test winner === nothing 
+    end
+
+    @testset "One-Sided no winner, thresh=5" begin
+        normalstats = TwoNormalStatistics(
+            NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+            NormalStatistics(meanx=30.6, sdx=14.3, n=867)
+        )
+        model = StudentTEffectSize(r=1.0)
+        stats = StudentTStatistics(normalstats)
+        bf10_model = bayesfactor(model, stats)
+
+        thresh=5
+        stoppingrule = OneSidedBFThresh(thresh)
+        experiment = ExperimentBF(model=model, rule=stoppingrule)
+        update!(experiment, normalstats)
+        bf10_exp = bayesfactor(experiment)
+
+        @test bf10_model == bf10_exp
+        @test isapprox(bf10_exp, 1/5.45, rtol=0.01)
+
+        winner = decide!(experiment)
+        @test winner === nothing 
+    end
+
+    @testset "One-Sided alternative wins, thresh=5" begin
+        normalstats = TwoNormalStatistics(
+            NormalStatistics(meanx=28.8, sdx=13.5, n=133),
+            NormalStatistics(meanx=33.6, sdx=14.3, n=867)
+        )
+        model = StudentTEffectSize(r=1.0)
+        stats = StudentTStatistics(normalstats)
+        bf10_model = bayesfactor(model, stats)
+
+        thresh=5
+        stoppingrule = OneSidedBFThresh(thresh)
+        experiment = ExperimentBF(model=model, rule=stoppingrule)
+        update!(experiment, normalstats)
+        bf10_exp = bayesfactor(experiment)
+
+        @test bf10_model == bf10_exp
+        @test isapprox(bf10_exp, 46.6077, rtol=0.01)
+
+        winner = decide!(experiment)
+        @test winner == "alternative"
     end
 end

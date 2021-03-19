@@ -99,8 +99,8 @@ samplestats(model, numsamples)   # sampling statistics from the data generating 
 
 ## References
 
-- The update rule for Normal distribution is based on this [lecture notes](
-    https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/other-readings/chapter9.pdf).
+- The update rule for Normal distribution is based on this 
+  [lecture notes](https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/other-readings/chapter9.pdf).
 """
 mutable struct ConjugateNormal{S} <: ConjugateModel
     dist::S

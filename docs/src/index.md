@@ -4,11 +4,10 @@ This is the documentation of `BayesianExperiments.jl`, a library for conducting 
 
 Current features include:
 
-- Conjugate prior models for distributions including Bernoulli, Normal, LogNormal, Exponential, etc.
-- Basic models can be chained to model multiple steps process.
-- Various stopping rules support: expected loss, probability to beat all.
-- Support multiple experiment design including fixed horizon experiments, sequential experiment and online learning.
-- Efficient Simulation tools to support power analysis.
+- Hypothesis testing with Bayes factor. Support the effect size model with Normal distribution prior and JZS prior.
+- Bayesian decision making with conjugate prior models. Support expected loss and probability to beat all as the stopping rule.
+- Flexible experiment design for both fixed horizon experiments and sequential test experiment.
+- Efficient simulation tools to support power analysis and sensitivity analysis.
 
 ## Installation
 
