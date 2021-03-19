@@ -30,11 +30,8 @@ makedocs(
     ]
 )
 
-devurl = "dev"
 deploydocs(
     repo="github.com/rakutentech/BayesianExperiments.jl.git",
     devbranch = "main",
-    branch = "gh-pages",
-    devurl=devurl,
-    versions = ["stable" => "v^", "v#.#", "dev" => devurl]
+    branch = "gh-pages"
 )
