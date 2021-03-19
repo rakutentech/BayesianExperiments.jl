@@ -1,5 +1,5 @@
-doc_path=../docs/src
-for notebook in $(ls *.ipynb)
+doc_path=src
+for notebook in $(ls ../examples/*.ipynb)
 do
     filename=$(basename $notebook .ipynb)
     if [ -f $doc_path/tutorials/$filename.md ]; then

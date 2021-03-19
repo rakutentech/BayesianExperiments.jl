@@ -5,6 +5,7 @@
 using ProgressMeter: @showprogress
 using DataFrames
 
+using PrettyTables
 using Plots
 using Random
 using BayesianExperiments
@@ -13,9 +14,9 @@ using BayesianExperiments
 ENV["COLUMNS"] = 200;
 ```
 
-Optional stopping refers to the practice of peeking at data and make decision whether or not to continue an experiment. Such practice is usually prohibited in the frequentist AB testing framework. By using simulation-based result, *Rouder (2014)*[2] showed that a Bayes factor experiment with optional stopping can be valid with proper interpretation of the Bayesian quantities. 
+Optional stopping refers to the practice of peeking at data and make decision whether or not to continue an experiment. Such practice is usually prohibited in the frequentist AB testing framework. By using simulation-based result, **Rouder (2014)**[2] showed that a Bayes factor experiment with optional stopping can be valid with proper interpretation of the Bayesian quantities. 
 
-This notebook follows the examples in *Schönbrodt et al. (2016)*[1] to conduct the error analysis of Bayes factor based experiment with optional stopping.
+This notebook follows the examples in **Schönbrodt et al. (2016)**[1] to conduct the error analysis of Bayes factor based experiment with optional stopping.
 
 The simulation will be conducted by following steps:
 
@@ -66,12 +67,14 @@ function simulate(δ, n, σ0; r=0.707, thresh=9, minsample=20)
     experiment
 end
 
+# df table print helper
+printtable(df) = pretty_table(df, tf=tf_markdown, nosubheader=true, header_crayon=Crayon(bold=:false))
 ```
 
 
 
 
-    simulate (generic function with 1 method)
+    printtable (generic function with 1 method)
 
 
 
@@ -132,19 +135,28 @@ sim_result1 = DataFrame(
 end
 ```
 
-    [32mProgress: 100%|█████████████████████████████████████████| Time: 0:01:00[39m
+    Progress: 100%|█████████████████████████████████████████| Time: 0:00:58
 
 
 
 ```julia
-sim_result1
+printtable(sim_result1)
 ```
 
-
-
-
-<table class="data-frame"><thead><tr><th></th><th>delta</th><th>r</th><th>thresh</th><th>num_sim</th><th>num_null</th><th>num_alt</th><th>err_rate</th><th>avg_sample_size</th></tr><tr><th></th><th>Float64</th><th>Float64</th><th>Float64</th><th>Int64</th><th>Int64</th><th>Int64</th><th>Float64</th><th>Int64</th></tr></thead><tbody><p>12 rows × 8 columns</p><tr><th>1</th><td>0.0</td><td>0.707</td><td>3.0</td><td>5000</td><td>4666</td><td>334</td><td>0.0668</td><td>24</td></tr><tr><th>2</th><td>0.0</td><td>1.0</td><td>3.0</td><td>5000</td><td>4691</td><td>309</td><td>0.0618</td><td>24</td></tr><tr><th>3</th><td>0.0</td><td>1.414</td><td>3.0</td><td>5000</td><td>4714</td><td>286</td><td>0.0572</td><td>24</td></tr><tr><th>4</th><td>0.0</td><td>0.707</td><td>5.0</td><td>5000</td><td>4727</td><td>273</td><td>0.0546</td><td>48</td></tr><tr><th>5</th><td>0.0</td><td>1.0</td><td>5.0</td><td>5000</td><td>4743</td><td>256</td><td>0.0512</td><td>48</td></tr><tr><th>6</th><td>0.0</td><td>1.414</td><td>5.0</td><td>5000</td><td>4724</td><td>276</td><td>0.0552</td><td>47</td></tr><tr><th>7</th><td>0.0</td><td>0.707</td><td>7.0</td><td>5000</td><td>4750</td><td>244</td><td>0.0488</td><td>99</td></tr><tr><th>8</th><td>0.0</td><td>1.0</td><td>7.0</td><td>5000</td><td>4779</td><td>215</td><td>0.043</td><td>100</td></tr><tr><th>9</th><td>0.0</td><td>1.414</td><td>7.0</td><td>5000</td><td>4733</td><td>259</td><td>0.0518</td><td>102</td></tr><tr><th>10</th><td>0.0</td><td>0.707</td><td>10.0</td><td>5000</td><td>4755</td><td>181</td><td>0.0362</td><td>207</td></tr><tr><th>11</th><td>0.0</td><td>1.0</td><td>10.0</td><td>5000</td><td>4776</td><td>168</td><td>0.0336</td><td>205</td></tr><tr><th>12</th><td>0.0</td><td>1.414</td><td>10.0</td><td>5000</td><td>4746</td><td>190</td><td>0.038</td><td>208</td></tr></tbody></table>
-
+    | delta |     r | thresh | num_sim | num_null | num_alt | err_rate | avg_sample_size |
+    |-------|-------|--------|---------|----------|---------|----------|-----------------|
+    |   0.0 | 0.707 |    3.0 |    5000 |     4689 |     311 |   0.0622 |              24 |
+    |   0.0 |   1.0 |    3.0 |    5000 |     4662 |     338 |   0.0676 |              24 |
+    |   0.0 | 1.414 |    3.0 |    5000 |     4698 |     302 |   0.0604 |              24 |
+    |   0.0 | 0.707 |    5.0 |    5000 |     4712 |     288 |   0.0576 |              47 |
+    |   0.0 |   1.0 |    5.0 |    5000 |     4718 |     282 |   0.0564 |              48 |
+    |   0.0 | 1.414 |    5.0 |    5000 |     4688 |     311 |   0.0622 |              49 |
+    |   0.0 | 0.707 |    7.0 |    5000 |     4753 |     238 |   0.0476 |             101 |
+    |   0.0 |   1.0 |    7.0 |    5000 |     4777 |     218 |   0.0436 |              99 |
+    |   0.0 | 1.414 |    7.0 |    5000 |     4765 |     227 |   0.0454 |             102 |
+    |   0.0 | 0.707 |   10.0 |    5000 |     4752 |     181 |   0.0362 |             210 |
+    |   0.0 |   1.0 |   10.0 |    5000 |     4729 |     210 |    0.042 |             206 |
+    |   0.0 | 1.414 |   10.0 |    5000 |     4745 |     191 |   0.0382 |             208 |
 
 
 ## Case when alternative $\delta > 0$
@@ -207,7 +219,7 @@ sim_result2 = DataFrame(
 end
 ```
 
-    [32mProgress: 100%|█████████████████████████████████████████| Time: 0:02:35[39m
+    Progress: 100%|█████████████████████████████████████████| Time: 0:02:31
 
 
 Simulation result when $\delta=0.5$
@@ -216,14 +228,24 @@ Simulation result when $\delta=0.5$
 ```julia
 sim_result2 |>
     df -> filter(x->x.delta==0.5, df)|>
-    df -> sort(df, [:delta, :r])
+    df -> sort(df, [:delta, :r]) |>
+    printtable
 ```
 
-
-
-
-<table class="data-frame"><thead><tr><th></th><th>delta</th><th>r</th><th>thresh</th><th>num_sim</th><th>num_null</th><th>num_alt</th><th>err_rate</th><th>avg_sample_size</th></tr><tr><th></th><th>Float64</th><th>Float64</th><th>Float64</th><th>Int64</th><th>Int64</th><th>Int64</th><th>Float64</th><th>Int64</th></tr></thead><tbody><p>12 rows × 8 columns</p><tr><th>1</th><td>0.5</td><td>0.707</td><td>3.0</td><td>5000</td><td>785</td><td>4215</td><td>0.157</td><td>26</td></tr><tr><th>2</th><td>0.5</td><td>0.707</td><td>5.0</td><td>5000</td><td>86</td><td>4914</td><td>0.0172</td><td>33</td></tr><tr><th>3</th><td>0.5</td><td>0.707</td><td>7.0</td><td>5000</td><td>1</td><td>4999</td><td>0.0002</td><td>37</td></tr><tr><th>4</th><td>0.5</td><td>0.707</td><td>10.0</td><td>5000</td><td>0</td><td>5000</td><td>0.0</td><td>40</td></tr><tr><th>5</th><td>0.5</td><td>1.0</td><td>3.0</td><td>5000</td><td>731</td><td>4269</td><td>0.1462</td><td>26</td></tr><tr><th>6</th><td>0.5</td><td>1.0</td><td>5.0</td><td>5000</td><td>81</td><td>4919</td><td>0.0162</td><td>33</td></tr><tr><th>7</th><td>0.5</td><td>1.0</td><td>7.0</td><td>5000</td><td>1</td><td>4999</td><td>0.0002</td><td>36</td></tr><tr><th>8</th><td>0.5</td><td>1.0</td><td>10.0</td><td>5000</td><td>0</td><td>5000</td><td>0.0</td><td>40</td></tr><tr><th>9</th><td>0.5</td><td>1.414</td><td>3.0</td><td>5000</td><td>744</td><td>4256</td><td>0.1488</td><td>25</td></tr><tr><th>10</th><td>0.5</td><td>1.414</td><td>5.0</td><td>5000</td><td>86</td><td>4914</td><td>0.0172</td><td>34</td></tr><tr><th>11</th><td>0.5</td><td>1.414</td><td>7.0</td><td>5000</td><td>2</td><td>4998</td><td>0.0004</td><td>37</td></tr><tr><th>12</th><td>0.5</td><td>1.414</td><td>10.0</td><td>5000</td><td>0</td><td>5000</td><td>0.0</td><td>39</td></tr></tbody></table>
-
+    | delta |     r | thresh | num_sim | num_null | num_alt | err_rate | avg_sample_size |
+    |-------|-------|--------|---------|----------|---------|----------|-----------------|
+    |   0.5 | 0.707 |    3.0 |    5000 |      694 |    4306 |   0.1388 |              26 |
+    |   0.5 | 0.707 |    5.0 |    5000 |       82 |    4918 |   0.0164 |              33 |
+    |   0.5 | 0.707 |    7.0 |    5000 |        0 |    5000 |      0.0 |              36 |
+    |   0.5 | 0.707 |   10.0 |    5000 |        0 |    5000 |      0.0 |              39 |
+    |   0.5 |   1.0 |    3.0 |    5000 |      674 |    4326 |   0.1348 |              25 |
+    |   0.5 |   1.0 |    5.0 |    5000 |       90 |    4910 |    0.018 |              33 |
+    |   0.5 |   1.0 |    7.0 |    5000 |        3 |    4997 |   0.0006 |              37 |
+    |   0.5 |   1.0 |   10.0 |    5000 |        0 |    5000 |      0.0 |              40 |
+    |   0.5 | 1.414 |    3.0 |    5000 |      746 |    4254 |   0.1492 |              26 |
+    |   0.5 | 1.414 |    5.0 |    5000 |       84 |    4916 |   0.0168 |              34 |
+    |   0.5 | 1.414 |    7.0 |    5000 |        0 |    5000 |      0.0 |              36 |
+    |   0.5 | 1.414 |   10.0 |    5000 |        0 |    5000 |      0.0 |              40 |
 
 
 ## Evaluate the simulation result with Type I & II Error and FDR
@@ -265,8 +287,7 @@ sim_result.type2_error = 1 .- sim_result.num_alt_1 ./ sim_result.num_sim;
 
 ```julia
 sim_result = sim_result |>
-    df -> select(df, [:delta_1, :r, :thresh, :num_sim, :num_null_0, :num_alt_0, 
-        :num_null_1, :num_alt_1, :type1_error, :power, :fdr]);
+    df -> select(df, [:delta_1, :r, :thresh, :num_sim, :num_alt_0, :num_alt_1, :type1_error, :power, :fdr]);
 ```
 
 Examples from merged dataframe:
@@ -279,14 +300,24 @@ sim_result |>
              ((x.delta_1 == 0.1) .& (x.r == 1.0)) .|
              ((x.delta_1 == 0.3) .& (x.r == 1.0))
             , df) |>
-    df -> sort(df, [:delta_1, :r, :thresh])
+    df -> sort(df, [:delta_1, :r, :thresh]) |>
+    printtable
 ```
 
-
-
-
-<table class="data-frame"><thead><tr><th></th><th>delta_1</th><th>r</th><th>thresh</th><th>num_sim</th><th>num_null_0</th><th>num_alt_0</th><th>num_null_1</th><th>num_alt_1</th><th>type1_error</th><th>power</th><th>fdr</th></tr><tr><th></th><th>Float64?</th><th>Float64</th><th>Float64</th><th>Int64</th><th>Int64</th><th>Int64</th><th>Int64?</th><th>Int64?</th><th>Float64</th><th>Float64</th><th>Float64</th></tr></thead><tbody><p>12 rows × 11 columns</p><tr><th>1</th><td>0.1</td><td>0.707</td><td>3.0</td><td>5000</td><td>4666</td><td>334</td><td>4451</td><td>549</td><td>0.0668</td><td>0.1098</td><td>0.378256</td></tr><tr><th>2</th><td>0.1</td><td>0.707</td><td>5.0</td><td>5000</td><td>4727</td><td>273</td><td>4197</td><td>799</td><td>0.0546</td><td>0.1598</td><td>0.254664</td></tr><tr><th>3</th><td>0.1</td><td>0.707</td><td>7.0</td><td>5000</td><td>4750</td><td>244</td><td>3595</td><td>1346</td><td>0.0488</td><td>0.2692</td><td>0.153459</td></tr><tr><th>4</th><td>0.1</td><td>0.707</td><td>10.0</td><td>5000</td><td>4755</td><td>181</td><td>2533</td><td>2042</td><td>0.0362</td><td>0.4084</td><td>0.0814215</td></tr><tr><th>5</th><td>0.1</td><td>1.0</td><td>3.0</td><td>5000</td><td>4691</td><td>309</td><td>4453</td><td>547</td><td>0.0618</td><td>0.1094</td><td>0.360981</td></tr><tr><th>6</th><td>0.1</td><td>1.0</td><td>5.0</td><td>5000</td><td>4743</td><td>256</td><td>4192</td><td>807</td><td>0.0512</td><td>0.1614</td><td>0.240828</td></tr><tr><th>7</th><td>0.1</td><td>1.0</td><td>7.0</td><td>5000</td><td>4779</td><td>215</td><td>3649</td><td>1301</td><td>0.043</td><td>0.2602</td><td>0.141821</td></tr><tr><th>8</th><td>0.1</td><td>1.0</td><td>10.0</td><td>5000</td><td>4776</td><td>168</td><td>2569</td><td>2053</td><td>0.0336</td><td>0.4106</td><td>0.0756416</td></tr><tr><th>9</th><td>0.3</td><td>1.0</td><td>3.0</td><td>5000</td><td>4691</td><td>309</td><td>2584</td><td>2416</td><td>0.0618</td><td>0.4832</td><td>0.113394</td></tr><tr><th>10</th><td>0.3</td><td>1.0</td><td>5.0</td><td>5000</td><td>4743</td><td>256</td><td>1136</td><td>3864</td><td>0.0512</td><td>0.7728</td><td>0.0621359</td></tr><tr><th>11</th><td>0.3</td><td>1.0</td><td>7.0</td><td>5000</td><td>4779</td><td>215</td><td>254</td><td>4746</td><td>0.043</td><td>0.9492</td><td>0.043338</td></tr><tr><th>12</th><td>0.3</td><td>1.0</td><td>10.0</td><td>5000</td><td>4776</td><td>168</td><td>8</td><td>4992</td><td>0.0336</td><td>0.9984</td><td>0.0325581</td></tr></tbody></table>
-
+    | delta_1 |     r | thresh | num_sim | num_alt_0 | num_alt_1 | type1_error |  power |       fdr |
+    |---------|-------|--------|---------|-----------|-----------|-------------|--------|-----------|
+    |     0.1 | 0.707 |    3.0 |    5000 |       311 |       568 |      0.0622 | 0.1136 |  0.353811 |
+    |     0.1 | 0.707 |    5.0 |    5000 |       288 |       812 |      0.0576 | 0.1624 |  0.261818 |
+    |     0.1 | 0.707 |    7.0 |    5000 |       238 |      1335 |      0.0476 |  0.267 |  0.151303 |
+    |     0.1 | 0.707 |   10.0 |    5000 |       181 |      2102 |      0.0362 | 0.4204 | 0.0792816 |
+    |     0.1 |   1.0 |    3.0 |    5000 |       338 |       542 |      0.0676 | 0.1084 |  0.384091 |
+    |     0.1 |   1.0 |    5.0 |    5000 |       282 |       810 |      0.0564 |  0.162 |  0.258242 |
+    |     0.1 |   1.0 |    7.0 |    5000 |       218 |      1329 |      0.0436 | 0.2658 |  0.140918 |
+    |     0.1 |   1.0 |   10.0 |    5000 |       210 |      2035 |       0.042 |  0.407 | 0.0935412 |
+    |     0.3 |   1.0 |    3.0 |    5000 |       338 |      2399 |      0.0676 | 0.4798 |  0.123493 |
+    |     0.3 |   1.0 |    5.0 |    5000 |       282 |      3843 |      0.0564 | 0.7686 | 0.0683636 |
+    |     0.3 |   1.0 |    7.0 |    5000 |       218 |      4762 |      0.0436 | 0.9524 | 0.0437751 |
+    |     0.3 |   1.0 |   10.0 |    5000 |       210 |      4990 |       0.042 |  0.998 | 0.0403846 |
 
 
 ## References

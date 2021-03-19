@@ -1,5 +1,18 @@
 using Documenter, BayesianExperiments
 
+sourcepath = joinpath(@__DIR__, "src")
+
+# cleanup
+filename = joinpath(sourcepath, "tutorials/bayes_factor_optional_stopping.md")
+filecontent = open(filename, "r") do io
+        read(io, String)
+    end
+
+filecontent = replace(filecontent, r"\e\[[0-9]+m"=>"")
+open(filename, "w") do io
+    write(io, filecontent)
+end
+
 makedocs(
     sitename="BayesianExperiments.jl",
     modules=[BayesianExperiments],
@@ -7,9 +20,7 @@ makedocs(
     doctest = false,
     pages = [
         "Home" => "index.md",
-        "Getting Started" => [
-            "examples_conjugate.md", 
-            "examples_bayesfactor.md"],
+        "Getting Started" => "examples.md",
         "API" => "api.md",
         "Tutorials" => [ 
             "tutorials/sequential_testing_conjugate_models.md",
