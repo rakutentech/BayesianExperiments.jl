@@ -95,8 +95,25 @@ end
 
         @test decide!(experiment) == "variant 1"
     end
+
+
 end
 
+@testset "Number of models" begin
+    # Generate sample data
+    n = 1000
+    dataA = rand(Bernoulli(0.150), n)
+    dataB = rand(Bernoulli(0.145), n)
+    dataC = rand(Bernoulli(0.180), n)
+
+    # Define the models
+    modelA = ConjugateBernoulli(1, 1)
+    modelB = ConjugateBernoulli(1, 1)
+    modelC = ConjugateBernoulli(1, 1)
+
+    stoppingrule = ProbabilityBeatAllThresh(0.99)
+    @test_throws ArgumentError("Number of models needs to be equal to 2.") ExperimentAB([modelA, modelB, modelC], stoppingrule)
+end
 
 
 @testset "ExperiemntBF{NormalEffectSize}" begin

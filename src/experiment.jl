@@ -19,7 +19,7 @@ mutable struct ExperimentABN{T,n} <: Experiment
 
     function ExperimentABN{T,n}(models, rule::T; modelnames=nothing) where {T <: StoppingRule,n}
         length(models) >= 2 || throw(ArgumentError("Number of models needs to be greater than 1."))
-        length(models) == n || throw(ArgumentError("Number of models needs to be equal to n."))
+        length(models) == n || throw(ArgumentError("Number of models needs to be equal to $n."))
         
         if modelnames === nothing
             modelnames = ["control"]
