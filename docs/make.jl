@@ -34,5 +34,5 @@ deploydocs(
     repo="github.com/rakutentech/BayesianExperiments.jl.git",
     devbranch = "main",
     branch = "gh-pages",
-    versions=["stable"=>"0.2.1", devurl="dev"]
+    versions=["stable"=>"v#.#.#", "dev"="dev"]
 )
