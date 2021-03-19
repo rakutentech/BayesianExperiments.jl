@@ -1,8 +1,8 @@
-# Type S Error Analysis: Comparing Fixed Horizon and Sequential Experiment
+# Type S Error in Fixed Horizon and Sequential Testing Experiment
 
-A Type S error is an error of *sign* when our clamed sign of parameter is to the opposite of the truth. See detailed discussion in this [blog article](https://statmodeling.stat.columbia.edu/2004/12/29/type_1_type_2_t/) and [paper](http://www.stat.columbia.edu/~gelman/research/published/francis8.pdf).
+A Type S error is an error of *sign* when our claimed sign of parameter is to the opposite of the truth. See detailed discussion in this [blog article](https://statmodeling.stat.columbia.edu/2004/12/29/type_1_type_2_t/) and [paper](http://www.stat.columbia.edu/~gelman/research/published/francis8.pdf).
 
-This example is taken from the post [Is Bayesian A/B Testing Immune to Peeking? Not Exactly](http://varianceexplained.org/r/bayesian-ab-testing/), which discusses about the impact of experiment design, fixed horizon or sequantial design, on the Type S error rate.
+This example is taken from the post [Is Bayesian A/B Testing Immune to Peeking? Not Exactly](http://varianceexplained.org/r/bayesian-ab-testing/), which discusses about the impact of experiment design, fixed horizon or sequential design, on the Type S error rate.
 
 
 ```julia
@@ -73,7 +73,7 @@ numsteps, winners, metricvals = runsequential(simulation_fix, numsamples=10000, 
 println("Ratio of new variant wins:", sum(winners .== "new") / 100)
 ```
 
-    Ratio of new variants wins:0.02
+    Ratio of new variant wins:0.02
 
 
 ## Sequential Experiment
@@ -97,7 +97,7 @@ type_s_error_rate = sum(winners .== "new") / 100
 println("Ratio of new variant wins:", type_s_error_rate)
 ```
 
-    Ratio of new variants wins:0.11
+    Ratio of new variant wins:0.11
 
 
 ## Expected Loss Thresholds vs. Resulting Loss
@@ -218,7 +218,9 @@ plot(thresholds,
 
 
 
-![svg](fixed_vs_sequentail_type_s_error_files/fixed_vs_sequentail_type_s_error_23_0.svg)
+    
+![svg](type_s_error_files/type_s_error_23_0.svg)
+    
 
 
 
@@ -240,6 +242,8 @@ plot(thresholds,
 
 
 
-![svg](fixed_vs_sequentail_type_s_error_files/fixed_vs_sequentail_type_s_error_25_0.svg)
+    
+![svg](type_s_error_files/type_s_error_25_0.svg)
+    
 
 
