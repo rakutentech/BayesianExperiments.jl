@@ -33,5 +33,6 @@ makedocs(
 deploydocs(
     repo="github.com/rakutentech/BayesianExperiments.jl.git",
     devbranch = "main",
-    branch = "gh-pages"
+    branch = "gh-pages",
+    versions=["stable"=>"0.2.1", "dev"="dev"]
 )
