@@ -83,6 +83,7 @@ export
 
     ChainedModel, 
     ChainOperator,
+    MultiplyOperator,
 
     samplepost,
     samplestats,
