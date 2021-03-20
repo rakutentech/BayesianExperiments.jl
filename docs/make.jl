@@ -36,7 +36,8 @@ deploydocs(
     devbranch = "main",
     branch = "gh-pages",
     devurl=devurl,
-    versions = ["released" => "v#.#.#", 
+    versions = ["minor" => "v#.#", 
+                "maxversion"=>"v^",
                 "dev" => devurl, 
                 "latest"=>devurl]
 ) 
