@@ -2,6 +2,11 @@
 
 
 ```julia
+# setup noteoobk environment
+import Pkg
+Pkg.activate(".")
+Pkg.instantiate();
+
 using Random 
 using Plots
 

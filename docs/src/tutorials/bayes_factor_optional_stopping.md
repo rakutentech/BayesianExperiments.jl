@@ -2,6 +2,11 @@
 
 
 ```julia
+# setup noteoobk environment
+import Pkg
+Pkg.activate(".")
+Pkg.instantiate();
+
 using ProgressMeter: @showprogress
 using DataFrames
 
@@ -139,7 +144,7 @@ sim_result1 = DataFrame(
 end
 ```
 
-    Progress: 100%|█████████████████████████████████████████| Time: 0:01:00
+    [32mProgress: 100%|█████████████████████████████████████████| Time: 0:01:00[39m
 
 
 
@@ -147,7 +152,7 @@ end
 printtable(sim_result1)
 ```
 
-    | delta |     r | thresh | num_sim | num_null | num_alt | err_rate | avg_sample_size |
+    |[22m delta [0m|[22m     r [0m|[22m thresh [0m|[22m num_sim [0m|[22m num_null [0m|[22m num_alt [0m|[22m err_rate [0m|[22m avg_sample_size [0m|
     |-------|-------|--------|---------|----------|---------|----------|-----------------|
     |   0.0 | 0.707 |    3.0 |    5000 |     4680 |     320 |    0.064 |              24 |
     |   0.0 |   1.0 |    3.0 |    5000 |     4688 |     312 |   0.0624 |              24 |
@@ -223,7 +228,7 @@ sim_result2 = DataFrame(
 end
 ```
 
-    Progress: 100%|█████████████████████████████████████████| Time: 0:02:46
+    [32mProgress: 100%|█████████████████████████████████████████| Time: 0:02:46[39m
 
 
 Simulation result when $\delta=0.5$
@@ -236,7 +241,7 @@ sim_result2 |>
     df -> printtable(DataFrame(df))
 ```
 
-    | delta |     r | thresh | num_sim | num_null | num_alt | err_rate | avg_sample_size |
+    |[22m delta [0m|[22m     r [0m|[22m thresh [0m|[22m num_sim [0m|[22m num_null [0m|[22m num_alt [0m|[22m err_rate [0m|[22m avg_sample_size [0m|
     |-------|-------|--------|---------|----------|---------|----------|-----------------|
     |   0.5 | 0.707 |    3.0 |    5000 |      727 |    4273 |   0.1454 |              26 |
     |   0.5 | 0.707 |    5.0 |    5000 |       83 |    4917 |   0.0166 |              33 |
@@ -292,7 +297,7 @@ sim_result |>
     df -> printtable(DataFrame(df))
 ```
 
-    | delta_1 |     r | thresh | num_sim | num_alt_0 | num_alt_1 | type1_error |  power |       fdr | avg_sample_size |
+    |[22m delta_1 [0m|[22m     r [0m|[22m thresh [0m|[22m num_sim [0m|[22m num_alt_0 [0m|[22m num_alt_1 [0m|[22m type1_error [0m|[22m  power [0m|[22m       fdr [0m|[22m avg_sample_size [0m|
     |---------|-------|--------|---------|-----------|-----------|-------------|--------|-----------|-----------------|
     |     0.1 | 0.707 |    3.0 |    5000 |       320 |       518 |       0.064 | 0.1036 |  0.381862 |            24.5 |
     |     0.1 | 0.707 |    5.0 |    5000 |       268 |       846 |      0.0536 | 0.1692 |  0.240575 |            55.0 |

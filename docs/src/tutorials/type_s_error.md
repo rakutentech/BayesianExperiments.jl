@@ -6,6 +6,11 @@ This example is taken from the post [Is Bayesian A/B Testing Immune to Peeking? 
 
 
 ```julia
+# setup noteoobk environment
+import Pkg
+Pkg.activate(".")
+Pkg.instantiate();
+
 using Random
 using Plots
 
