@@ -17,10 +17,6 @@ You can install a stable version of BayesianExperiments by running the command i
 julia> ] add BayesianExperiments
 ```
 
-## Contributing
-
-We welcome contributions to this project and discussion about its contents. Please open an issue or pull request on this repository to propose a change.
-
 ## Quick Start
 
 Here's a simple example showing how to use the package:
@@ -53,3 +49,7 @@ update!(experiment, [statsA, statsB])
 # Calculate the metric (expected loss in this case) of each model 
 winner_index, expected_losses = metrics(experiment)
 ```
+
+## Contributing
+
+We welcome contributions to this project and discussion about its contents. Please open an issue or pull request on this repository to propose a change.
