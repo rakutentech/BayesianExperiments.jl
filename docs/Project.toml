@@ -1,4 +1,5 @@
 [deps]
+BayesianExperiments = "0200d6b2-355c-4cc6-8967-0ef505c43a9c"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
 [compat]
