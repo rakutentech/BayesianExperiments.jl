@@ -1,7 +1,7 @@
 name = "BayesianExperiments"
 uuid = "0200d6b2-355c-4cc6-8967-0ef505c43a9c"
 authors = ["Jiangtao Fu <jetafull@gmail.com>"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
