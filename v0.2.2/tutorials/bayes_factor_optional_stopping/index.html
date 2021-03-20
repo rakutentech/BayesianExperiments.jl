@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Bayes Factor Experiment with Optional Stopping · BayesianExperiments.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">BayesianExperiments.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../examples/">Getting Started</a></li><li><a class="tocitem" href="../../api/">API</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../sequential_testing_conjugate_models/">Sequential Testing Experiment with Conjugate Models</a></li><li><a class="tocitem" href="../type_s_error/">Type S Error in Fixed Horizon and Sequential Testing Experiment</a></li><li class="is-active"><a class="tocitem" href>Bayes Factor Experiment with Optional Stopping</a><ul class="internal"><li><a class="tocitem" href="#Case-when-alternative-\\delta-0"><span>Case when alternative <span>$\delta = 0$</span></span></a></li><li><a class="tocitem" href="#Case-when-alternative-\\delta-0-2"><span>Case when alternative <span>$\delta &gt; 0$</span></span></a></li><li><a class="tocitem" href="#Evaluate-the-simulation-result-with-Type-I-and-II-Error-and-FDR"><span>Evaluate the simulation result with Type I &amp; II Error and FDR</span></a></li><li><a class="tocitem" href="#Visualizations"><span>Visualizations</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Bayes Factor Experiment with Optional Stopping</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Bayes Factor Experiment with Optional Stopping</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/rakutentech/BayesianExperiments.jl/blob/master/docs/src/tutorials/bayes_factor_optional_stopping.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Bayes-Factor-Experiment-with-Optional-Stopping"><a class="docs-heading-anchor" href="#Bayes-Factor-Experiment-with-Optional-Stopping">Bayes Factor Experiment with Optional Stopping</a><a id="Bayes-Factor-Experiment-with-Optional-Stopping-1"></a><a class="docs-heading-anchor-permalink" href="#Bayes-Factor-Experiment-with-Optional-Stopping" title="Permalink"></a></h1><pre><code class="language-julia">using ProgressMeter: @showprogress
+using DataFrames
+
+using PrettyTables
+using Random
+using Query
+using StatsPlots
+using StatsPlots.PlotMeasures
+using Plots
+
+using BayesianExperiments
+
+# number of columns in a dataframe to show 
+ENV[&quot;COLUMNS&quot;] = 200;</code></pre><p>Optional stopping refers to the practice of peeking at data and make decision whether or not to continue an experiment. Such practice is usually prohibited in the frequentist AB testing framework. By using simulation-based result, <strong>Rouder (2014)</strong>[2] showed that a Bayes factor experiment with optional stopping can be valid with proper interpretation of the Bayesian quantities. </p><p>This notebook follows the examples in <strong>Schönbrodt et al. (2016)</strong>[1] to conduct the error analysis of Bayes factor based experiment with optional stopping.</p><p>The simulation will be conducted by following steps:</p><ol><li>Choose a threshold of Bayes factor for decision making. For example, if the threshold is set to 10, when a Bayes factor of <span>$\text{BF}_{10}$</span> is larger than 10, or less than 1/10, we decide we have collected enough evidence and stop the experiment.</li><li>Choose a prior distribituion for the effect size under <span>$H_1$</span>. We will use the <code>StudentTEffectSize</code> model in the package. You can check the definition of <code>NormalEffectSize</code> model from the docstring by typing <code>?NormalEffectSize</code>.</li><li>Run a minimum number of steps (20 as the same in the paper), increase the sample size. Compute the bayes factor at each step.</li><li>As soon as the bayes factor value reached or exceeded the one of the thresholds as set in (1), or the maximum number of steps is reached, we will stop the experiment.</li></ol><p>Some constants used in the simulation:</p><ul><li>Number of simulations: 5000</li><li>Minimum number of steps: 20</li></ul><p>The simulation function can be quickly created based on our package:</p><pre><code class="language-julia">function simulate(δ, n, σ0; r=0.707, thresh=9, minsample=20)
+    # we will use two-sided decision rule for bayes factor
+    rule = TwoSidedBFThresh(thresh)
+    
+    # the prior distribution of effect size,
+    # r is the standard deviation
+    model = StudentTEffectSize(r=r)
+    
+    # setup the experiment
+    experiment = ExperimentBF(model=model, rule=rule)
+    
+    # create a sample with size n, the effect size is 
+    # specified as δ
+    xs = rand(Normal(δ, 1), n)
+    
+    i = 0
+    # specify the stopping condition
+    while (i &lt; n) &amp; (experiment.winner === nothing)
+        i += 1
+        
+        # if minimum number of sample is not reached, 
+        # keep collecting data
+        if i &lt; minsample
+            continue
+        end
+        
+        stats = NormalStatistics(xs[1:i])
+        experiment.stats = stats
+        decide!(experiment)
+    end
+    experiment
+end
+
+# df table print helper
+printtable(df) = pretty_table(df, tf=tf_markdown, nosubheader=true, header_crayon=Crayon(bold=:false))</code></pre><pre><code class="language-none">printtable (generic function with 1 method)</code></pre><h2 id="Case-when-alternative-\\delta-0"><a class="docs-heading-anchor" href="#Case-when-alternative-\\delta-0">Case when alternative <span>$\delta = 0$</span></a><a id="Case-when-alternative-\\delta-0-1"></a><a class="docs-heading-anchor-permalink" href="#Case-when-alternative-\\delta-0" title="Permalink"></a></h2><p>When alternative <span>$\delta &gt; 0$</span>, the error rate relates to the false positive rate. </p><pre><code class="language-julia">#deltas = collect(range(0, 1.5, step=0.2));
+delta = 0.0
+rs = [0.707, 1.0, 1.414];
+threshs = [3, 5, 7, 10];
+totalnum = length(rs)*length(threshs);
+
+paramsgrid = reshape(collect(Base.Iterators.product(rs, threshs)), (totalnum, 1));
+paramsgrid = [(r=r, thresh=thresh) for (r, thresh) in paramsgrid];
+@show length(paramsgrid);</code></pre><pre><code class="language-none">length(paramsgrid) = 12</code></pre><pre><code class="language-julia">n =  1000
+ns = 5000
+minsample = 20
+
+sim_result1 = DataFrame(
+    delta=Float64[], 
+    r=Float64[], 
+    thresh=Float64[], 
+    num_sim=Int64[], 
+    num_null=Int64[], 
+    num_alt=Int64[],
+    err_rate=Float64[], 
+    avg_sample_size=Int64[])
+
+@showprogress for params in paramsgrid
+    delta = 0
+    r = params.r
+    thresh = params.thresh
+    winners = []
+    samplesizes = []
+    for _ in 1:ns
+        experiment = simulate(delta, n, r, thresh=thresh, minsample=minsample)
+        push!(winners, experiment.winner)
+        push!(samplesizes, experiment.stats.n)
+    end
+    
+    num_null = sum(winners .== &quot;null&quot;)
+    num_alt = sum(winners .== &quot;alternative&quot;)
+    
+    err_rate = num_alt/ns
+    avg_sample_size = mean(samplesizes)
+    push!(sim_result1, (delta, r, thresh, ns, num_null, num_alt, err_rate, convert(Int64, round(avg_sample_size))))
+end</code></pre><pre><code class="language-none">Progress: 100%|█████████████████████████████████████████| Time: 0:01:00</code></pre><pre><code class="language-julia">printtable(sim_result1)</code></pre><pre><code class="language-none">| delta |     r | thresh | num_sim | num_null | num_alt | err_rate | avg_sample_size |
+|-------|-------|--------|---------|----------|---------|----------|-----------------|
+|   0.0 | 0.707 |    3.0 |    5000 |     4680 |     320 |    0.064 |              24 |
+|   0.0 |   1.0 |    3.0 |    5000 |     4688 |     312 |   0.0624 |              24 |
+|   0.0 | 1.414 |    3.0 |    5000 |     4680 |     320 |    0.064 |              24 |
+|   0.0 | 0.707 |    5.0 |    5000 |     4731 |     268 |   0.0536 |              49 |
+|   0.0 |   1.0 |    5.0 |    5000 |     4734 |     266 |   0.0532 |              49 |
+|   0.0 | 1.414 |    5.0 |    5000 |     4725 |     275 |    0.055 |              49 |
+|   0.0 | 0.707 |    7.0 |    5000 |     4777 |     220 |    0.044 |             100 |
+|   0.0 |   1.0 |    7.0 |    5000 |     4742 |     247 |   0.0494 |              98 |
+|   0.0 | 1.414 |    7.0 |    5000 |     4753 |     238 |   0.0476 |             100 |
+|   0.0 | 0.707 |   10.0 |    5000 |     4744 |     191 |   0.0382 |             205 |
+|   0.0 |   1.0 |   10.0 |    5000 |     4762 |     184 |   0.0368 |             206 |
+|   0.0 | 1.414 |   10.0 |    5000 |     4751 |     183 |   0.0366 |             211 |</code></pre><h2 id="Case-when-alternative-\\delta-0-2"><a class="docs-heading-anchor" href="#Case-when-alternative-\\delta-0-2">Case when alternative <span>$\delta &gt; 0$</span></a><a class="docs-heading-anchor-permalink" href="#Case-when-alternative-\\delta-0-2" title="Permalink"></a></h2><p>We create a grid of combinations of all parameters.</p><pre><code class="language-julia">deltas = collect(range(0.1, 1.0, step=0.2));
+rs = [0.707, 1.0, 1.414];
+threshs = [3, 5, 7, 10];
+totalnum = length(deltas)*length(rs)*length(threshs);
+
+paramsgrid = reshape(collect(Base.Iterators.product(deltas, rs, threshs)), (totalnum, 1));
+paramsgrid = [(delta=delta, r=r, thresh=thresh) for (delta, r, thresh) in paramsgrid]
+@show length(paramsgrid);
+@show paramsgrid[1:5];</code></pre><pre><code class="language-none">length(paramsgrid) = 60
+paramsgrid[1:5] = NamedTuple{(:delta, :r, :thresh),Tuple{Float64,Float64,Int64}}[(delta = 0.1, r = 0.707, thresh = 3), (delta = 0.3, r = 0.707, thresh = 3), (delta = 0.5, r = 0.707, thresh = 3), (delta = 0.7, r = 0.707, thresh = 3), (delta = 0.9, r = 0.707, thresh = 3)]</code></pre><p>The simulation is similar to the <span>$\delta=0$</span> case. When alternative <span>$\delta &gt; 0$</span>, the error rate relates to the false negative evidence.</p><pre><code class="language-julia">n =  1000
+ns = 5000
+minsample = 20
+
+sim_result2 = DataFrame(
+    delta=Float64[], 
+    r=Float64[], 
+    thresh=Float64[], 
+    num_sim=Int64[], 
+    num_null=Int64[], 
+    num_alt=Int64[],
+    err_rate=Float64[], 
+    avg_sample_size=Int64[])
+
+@showprogress for params in paramsgrid
+    delta=params.delta
+    r = params.r
+    thresh = params.thresh
+    winners = []
+    samplesizes = []
+    for _ in 1:ns
+        experiment = simulate(delta, n, r, thresh=thresh, minsample=minsample)
+        push!(winners, experiment.winner)
+        push!(samplesizes, experiment.stats.n)
+    end
+    
+    num_null = sum(winners .== &quot;null&quot;)
+    num_alt = sum(winners .== &quot;alternative&quot;)
+    err_rate = 1-num_alt/ns
+    avg_sample_size = mean(samplesizes)
+    push!(sim_result2, (delta, r, thresh, ns, num_null, num_alt, 
+            err_rate, convert(Int64, round(avg_sample_size))))
+end</code></pre><pre><code class="language-none">Progress: 100%|█████████████████████████████████████████| Time: 0:02:46</code></pre><p>Simulation result when <span>$\delta=0.5$</span></p><pre><code class="language-julia">sim_result2 |&gt;
+    @filter(_.delta==0.5)|&gt;
+    @orderby(_.delta) |&gt; @thenby(_.r) |&gt;
+    df -&gt; printtable(DataFrame(df))</code></pre><pre><code class="language-none">| delta |     r | thresh | num_sim | num_null | num_alt | err_rate | avg_sample_size |
+|-------|-------|--------|---------|----------|---------|----------|-----------------|
+|   0.5 | 0.707 |    3.0 |    5000 |      727 |    4273 |   0.1454 |              26 |
+|   0.5 | 0.707 |    5.0 |    5000 |       83 |    4917 |   0.0166 |              33 |
+|   0.5 | 0.707 |    7.0 |    5000 |        1 |    4999 |   0.0002 |              37 |
+|   0.5 | 0.707 |   10.0 |    5000 |        0 |    5000 |      0.0 |              39 |
+|   0.5 |   1.0 |    3.0 |    5000 |      759 |    4241 |   0.1518 |              26 |
+|   0.5 |   1.0 |    5.0 |    5000 |       69 |    4931 |   0.0138 |              34 |
+|   0.5 |   1.0 |    7.0 |    5000 |        2 |    4998 |   0.0004 |              37 |
+|   0.5 |   1.0 |   10.0 |    5000 |        0 |    5000 |      0.0 |              39 |
+|   0.5 | 1.414 |    3.0 |    5000 |      723 |    4277 |   0.1446 |              26 |
+|   0.5 | 1.414 |    5.0 |    5000 |       97 |    4903 |   0.0194 |              33 |
+|   0.5 | 1.414 |    7.0 |    5000 |        0 |    5000 |      0.0 |              36 |
+|   0.5 | 1.414 |   10.0 |    5000 |        0 |    5000 |      0.0 |              40 |</code></pre><h2 id="Evaluate-the-simulation-result-with-Type-I-and-II-Error-and-FDR"><a class="docs-heading-anchor" href="#Evaluate-the-simulation-result-with-Type-I-and-II-Error-and-FDR">Evaluate the simulation result with Type I &amp; II Error and FDR</a><a id="Evaluate-the-simulation-result-with-Type-I-and-II-Error-and-FDR-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluate-the-simulation-result-with-Type-I-and-II-Error-and-FDR" title="Permalink"></a></h2><p>As pointed out by [2], we can evaluate the simulation result from the perspective of false discovery rate. Here we assume there is a 50-50 chance that the data is from either the null model or alternative model. </p><p>We can merge the two simulations results by the prior standard deviation <span>$r$</span> and threshold of bayes factor. In the merged dataframe, each row represents a simulation with the 5000 samples from the null model and 5000 samples from the alternative model with the corresponding parameters (<span>$r$</span>, <span>$thresh$</span>, <span>$\delta_1$</span>).</p><pre><code class="language-julia">sim_result = leftjoin(sim_result1, sim_result2, 
+    on=[:r, :thresh, :num_sim],
+    renamecols= &quot;_0&quot; =&gt; &quot;_1&quot;
+);
+
+sim_result.num_dis = sim_result.num_alt_0 + sim_result.num_alt_1;
+sim_result.num_false_dis = sim_result.num_alt_0;
+sim_result.fdr = sim_result.num_false_dis ./ sim_result.num_dis;
+
+sim_result.type1_error = sim_result.num_alt_0 ./ sim_result.num_sim;
+sim_result.type2_error = 1 .- sim_result.num_alt_1 ./ sim_result.num_sim;
+sim_result.power = sim_result.num_alt_1 ./ sim_result.num_sim;
+sim_result.avg_sample_size = (sim_result.avg_sample_size_0 + sim_result.avg_sample_size_1) ./ 2
+
+sim_result = sim_result |&gt;
+    df -&gt; select(df, [:delta_1, :r, :thresh, :num_sim, :num_alt_0, :num_alt_1, :type1_error,  
+                      :power, :fdr, :avg_sample_size]);</code></pre><p>Examples from merged dataframe:</p><pre><code class="language-julia">sim_result |&gt;
+    @filter(((_.delta_1 == 0.1) .&amp; (_.r == 0.707)) .|
+            ((_.delta_1 == 0.1) .&amp; (_.r == 1.0))  .|
+            ((_.delta_1 == 0.3) .&amp; (_.r == 1.0)) .|
+            ((_.delta_1 == 0.3) .&amp; (_.r == 1.414))) |&gt;
+    @orderby(_.delta_1) |&gt; @thenby(_.r) |&gt; @thenby(_.thresh) |&gt;
+    df -&gt; printtable(DataFrame(df))</code></pre><pre><code class="language-none">| delta_1 |     r | thresh | num_sim | num_alt_0 | num_alt_1 | type1_error |  power |       fdr | avg_sample_size |
+|---------|-------|--------|---------|-----------|-----------|-------------|--------|-----------|-----------------|
+|     0.1 | 0.707 |    3.0 |    5000 |       320 |       518 |       0.064 | 0.1036 |  0.381862 |            24.5 |
+|     0.1 | 0.707 |    5.0 |    5000 |       268 |       846 |      0.0536 | 0.1692 |  0.240575 |            55.0 |
+|     0.1 | 0.707 |    7.0 |    5000 |       220 |      1387 |       0.044 | 0.2774 |  0.136901 |           126.0 |
+|     0.1 | 0.707 |   10.0 |    5000 |       191 |      1999 |      0.0382 | 0.3998 | 0.0872146 |           274.5 |
+|     0.1 |   1.0 |    3.0 |    5000 |       312 |       553 |      0.0624 | 0.1106 |  0.360694 |            24.5 |
+|     0.1 |   1.0 |    5.0 |    5000 |       266 |       839 |      0.0532 | 0.1678 |  0.240724 |            55.0 |
+|     0.1 |   1.0 |    7.0 |    5000 |       247 |      1301 |      0.0494 | 0.2602 |  0.159561 |           122.0 |
+|     0.1 |   1.0 |   10.0 |    5000 |       184 |      2064 |      0.0368 | 0.4128 | 0.0818505 |           274.5 |
+|     0.3 |   1.0 |    3.0 |    5000 |       312 |      2386 |      0.0624 | 0.4772 |  0.115641 |            26.0 |
+|     0.3 |   1.0 |    5.0 |    5000 |       266 |      3951 |      0.0532 | 0.7902 |  0.063078 |            53.5 |
+|     0.3 |   1.0 |    7.0 |    5000 |       247 |      4752 |      0.0494 | 0.9504 | 0.0494099 |            90.5 |
+|     0.3 |   1.0 |   10.0 |    5000 |       184 |      4988 |      0.0368 | 0.9976 | 0.0355762 |           152.5 |
+|     0.3 | 1.414 |    3.0 |    5000 |       320 |      2414 |       0.064 | 0.4828 |  0.117045 |            26.0 |
+|     0.3 | 1.414 |    5.0 |    5000 |       275 |      3936 |       0.055 | 0.7872 | 0.0653052 |            53.0 |
+|     0.3 | 1.414 |    7.0 |    5000 |       238 |      4757 |      0.0476 | 0.9514 | 0.0476476 |            92.5 |
+|     0.3 | 1.414 |   10.0 |    5000 |       183 |      4993 |      0.0366 | 0.9986 | 0.0353555 |           155.0 |</code></pre><h2 id="Visualizations"><a class="docs-heading-anchor" href="#Visualizations">Visualizations</a><a id="Visualizations-1"></a><a class="docs-heading-anchor-permalink" href="#Visualizations" title="Permalink"></a></h2><h3 id="Type-I-Error"><a class="docs-heading-anchor" href="#Type-I-Error">Type I Error</a><a id="Type-I-Error-1"></a><a class="docs-heading-anchor-permalink" href="#Type-I-Error" title="Permalink"></a></h3><p>Some observations from the visualization below: </p><ol><li>Higher thresholds will lower the Type I error rate.</li><li><p class="math-container">\[r\]</p>is the prior standard divation of effect size. For lower value thresholds, lower <span>$r$</span> value will increase the Type I error. However, as the threshold increases, the <span>$r$</span> value seems to have smaller impact on the Type I error.</li></ol><pre><code class="language-julia"># create labels for visualizations
+r_labels = hcat([&quot;r=$val&quot; for val in rs]...);
+thresh_labels = hcat([&quot;thresh=$(Int(val))&quot; for val in threshs]...);
+delta_labels = hcat([&quot;\\delta=$(val)&quot; for val in deltas]...);</code></pre><pre><code class="language-julia">p0 = sim_result |&gt;
+    @filter(_.delta_1==0.1) |&gt;
+    @df plot(:thresh, [:type1_error], 
+             group=(:r), 
+             label=r_labels,
+             title=&quot;Bayes Factor Threshold vs Type I Error&quot;,
+             xlabel=&quot;BF Threshold&quot;,
+             ylabel=&quot;Type I Error&quot;,
+             legend=true)</code></pre><p><img src="../bayes_factor_optional_stopping_files/bayes_factor_optional_stopping_26_0.svg" alt="svg"/></p><h3 id="Impact-of-Effect-Size-When-\\delta_1-0"><a class="docs-heading-anchor" href="#Impact-of-Effect-Size-When-\\delta_1-0">Impact of Effect Size When <span>$\delta_1 &gt; 0$</span></a><a id="Impact-of-Effect-Size-When-\\delta_1-0-1"></a><a class="docs-heading-anchor-permalink" href="#Impact-of-Effect-Size-When-\\delta_1-0" title="Permalink"></a></h3><p>When the effect size gets larger, the power will increase and the FDR will decrease. </p><pre><code class="language-julia">p1 = sim_result |&gt; 
+    @filter(_.r==0.707) |&gt; 
+    @df plot(:delta_1, [:power], 
+        group=(:thresh), 
+        label=thresh_labels, 
+        xlabel=&quot;Effect Size \\delta&quot;,
+        ylabel=&quot;Power&quot;);
+
+p2 = sim_result |&gt; 
+    @filter(_.r==0.707) |&gt; 
+    @df plot(:delta_1, [:fdr], 
+        group=(:thresh), 
+        label=thresh_labels, 
+        xlabel=&quot;Effect Size \\delta&quot;,
+        ylabel=&quot;False Discovery Rate&quot;);
+
+plot(p1, p2, size=(800, 400), layout=(1, 2), left_margin=[15mm 0mm]) </code></pre><p><img src="../bayes_factor_optional_stopping_files/bayes_factor_optional_stopping_29_0.svg" alt="svg"/></p><h3 id="Impact-of-Bayes-Factor-Thresholds"><a class="docs-heading-anchor" href="#Impact-of-Bayes-Factor-Thresholds">Impact of Bayes Factor Thresholds</a><a id="Impact-of-Bayes-Factor-Thresholds-1"></a><a class="docs-heading-anchor-permalink" href="#Impact-of-Bayes-Factor-Thresholds" title="Permalink"></a></h3><p>When Bayes Factor threshold increases, the power also increase. This is because as the power increases, the chance we will falsely select the null hypothesis decreases.</p><p>The plots below shows the relationship between Bayes factor thresholds and power for different effect sizes.</p><pre><code class="language-julia">function plot_thresh_vs_power(df, delta; xlabel=&quot;BF Threshold&quot;)
+    return df |&gt; @df plot(
+        plot(:thresh, [:power], group=(:r), label=r_labels, xlabel=xlabel, ylabel=&quot;Power&quot;),
+        plot(:thresh, [:fdr], group=(:r), label=r_labels, xlabel=xlabel, ylabel=&quot;FDR&quot;),
+        title =&quot;\\delta_{1} = $delta&quot;)
+end
+
+p1 = sim_result |&gt;
+    @filter(_.delta_1==0.1) |&gt;
+    df -&gt; plot_thresh_vs_power(df, 0.1, xlabel=&quot;&quot;);
+
+p2 = sim_result |&gt;
+    @filter(_.delta_1==0.3) |&gt;
+    df -&gt; plot_thresh_vs_power(df, 0.3, xlabel=&quot;&quot;);
+
+p3 = sim_result |&gt;
+    @filter(_.delta_1==0.7) |&gt;
+    df -&gt; plot_thresh_vs_power(df, 0.7);
+
+plot(p1, p2, p3, layout=(3, 1), size=(800, 800))</code></pre><p><img src="../bayes_factor_optional_stopping_files/bayes_factor_optional_stopping_32_0.svg" alt="svg"/></p><h3 id="Average-Sample-Sizes-vs.-Bayes-Factor-Thresholds"><a class="docs-heading-anchor" href="#Average-Sample-Sizes-vs.-Bayes-Factor-Thresholds">Average Sample Sizes vs. Bayes Factor Thresholds</a><a id="Average-Sample-Sizes-vs.-Bayes-Factor-Thresholds-1"></a><a class="docs-heading-anchor-permalink" href="#Average-Sample-Sizes-vs.-Bayes-Factor-Thresholds" title="Permalink"></a></h3><p>The average sample sizes needed to stop the experiment and make decision. As Bayes factor threshold gets larger, the expected sample sizes also get larger.</p><pre><code class="language-julia">sim_result |&gt; 
+    @filter(_.r==0.707) |&gt;
+    @df plot(:thresh, [:avg_sample_size], 
+            group=(:delta_1), legend=:topleft, label=delta_labels,
+            xlabel=&quot;Bayes Factor Thresholds&quot;, ylabel=&quot;Average Sample Size&quot;)</code></pre><p><img src="../bayes_factor_optional_stopping_files/bayes_factor_optional_stopping_35_0.svg" alt="svg"/></p><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><ol><li>Schönbrodt, Felix D., Eric-Jan Wagenmakers, Michael Zehetleitner, and Marco Perugini. &quot;Sequential hypothesis testing with Bayes factors: Efficiently testing mean differences.&quot; Psychological methods 22, no. 2 (2017): 322.</li><li>Deng, Alex, Jiannan Lu, and Shouyuan Chen. &quot;Continuous monitoring of A/B tests without pain: Optional stopping in Bayesian testing.&quot; In 2016 IEEE international conference on data science and advanced analytics (DSAA), pp. 243-252. IEEE, 2016.</li><li>Rouder, Jeffrey N. &quot;Optional stopping: No problem for Bayesians.&quot; Psychonomic bulletin &amp; review 21, no. 2 (2014): 301-308.</li></ol></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../type_s_error/">« Type S Error in Fixed Horizon and Sequential Testing Experiment</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 20 March 2021 07:46">Saturday 20 March 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
