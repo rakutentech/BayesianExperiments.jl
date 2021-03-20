@@ -1,6 +1,7 @@
 # BayesianExperiments.jl
 
-[![Latest Doc](https://img.shields.io/badge/docs-latest-blue.svg)][1]
+[![Stable Doc](https://img.shields.io/badge/docs-stable-blue.svg)][1]
+[![Latest Doc](https://img.shields.io/badge/docs-latest-blue.svg)][2]
 [![codecov](https://codecov.io/gh/rakutentech/BayesianExperiments.jl/branch/main/graph/badge.svg?token=DOZ0HIW1V8)](https://codecov.io/gh/rakutentech/BayesianExperiments.jl)
 
 `BayesianExperiments.jl` provides a toolbox for running various types of Bayesian AB testing experiments.
@@ -22,7 +23,8 @@ For detailed discussions on many topics in the field, see the Jupyter notebooks 
 - [Type S Error in Fixed Horizon and Sequential Test Experiment](examples/type_s_error.ipynb)
 - [Bayes Factor Experiment with Optional Stopping](examples/bayes_factor_optional_stopping.ipynb)
 
-[1]: https://rakutentech.github.io/BayesianExperiments.jl/dev/
+[1]: https://rakutentech.github.io/BayesianExperiments.jl/stable/
+[2]: https://rakutentech.github.io/BayesianExperiments.jl/latest/
 
 ## Related Projects
 
