@@ -6,8 +6,12 @@ using ProgressMeter: @showprogress
 using DataFrames
 
 using PrettyTables
-using Plots
 using Random
+using Query
+using StatsPlots
+using StatsPlots.PlotMeasures
+using Plots
+
 using BayesianExperiments
 
 # number of columns in a dataframe to show 
@@ -135,7 +139,7 @@ sim_result1 = DataFrame(
 end
 ```
 
-    Progress: 100%|█████████████████████████████████████████| Time: 0:00:58
+    Progress: 100%|█████████████████████████████████████████| Time: 0:01:00
 
 
 
@@ -145,18 +149,18 @@ printtable(sim_result1)
 
     | delta |     r | thresh | num_sim | num_null | num_alt | err_rate | avg_sample_size |
     |-------|-------|--------|---------|----------|---------|----------|-----------------|
-    |   0.0 | 0.707 |    3.0 |    5000 |     4689 |     311 |   0.0622 |              24 |
-    |   0.0 |   1.0 |    3.0 |    5000 |     4662 |     338 |   0.0676 |              24 |
-    |   0.0 | 1.414 |    3.0 |    5000 |     4698 |     302 |   0.0604 |              24 |
-    |   0.0 | 0.707 |    5.0 |    5000 |     4712 |     288 |   0.0576 |              47 |
-    |   0.0 |   1.0 |    5.0 |    5000 |     4718 |     282 |   0.0564 |              48 |
-    |   0.0 | 1.414 |    5.0 |    5000 |     4688 |     311 |   0.0622 |              49 |
-    |   0.0 | 0.707 |    7.0 |    5000 |     4753 |     238 |   0.0476 |             101 |
-    |   0.0 |   1.0 |    7.0 |    5000 |     4777 |     218 |   0.0436 |              99 |
-    |   0.0 | 1.414 |    7.0 |    5000 |     4765 |     227 |   0.0454 |             102 |
-    |   0.0 | 0.707 |   10.0 |    5000 |     4752 |     181 |   0.0362 |             210 |
-    |   0.0 |   1.0 |   10.0 |    5000 |     4729 |     210 |    0.042 |             206 |
-    |   0.0 | 1.414 |   10.0 |    5000 |     4745 |     191 |   0.0382 |             208 |
+    |   0.0 | 0.707 |    3.0 |    5000 |     4680 |     320 |    0.064 |              24 |
+    |   0.0 |   1.0 |    3.0 |    5000 |     4688 |     312 |   0.0624 |              24 |
+    |   0.0 | 1.414 |    3.0 |    5000 |     4680 |     320 |    0.064 |              24 |
+    |   0.0 | 0.707 |    5.0 |    5000 |     4731 |     268 |   0.0536 |              49 |
+    |   0.0 |   1.0 |    5.0 |    5000 |     4734 |     266 |   0.0532 |              49 |
+    |   0.0 | 1.414 |    5.0 |    5000 |     4725 |     275 |    0.055 |              49 |
+    |   0.0 | 0.707 |    7.0 |    5000 |     4777 |     220 |    0.044 |             100 |
+    |   0.0 |   1.0 |    7.0 |    5000 |     4742 |     247 |   0.0494 |              98 |
+    |   0.0 | 1.414 |    7.0 |    5000 |     4753 |     238 |   0.0476 |             100 |
+    |   0.0 | 0.707 |   10.0 |    5000 |     4744 |     191 |   0.0382 |             205 |
+    |   0.0 |   1.0 |   10.0 |    5000 |     4762 |     184 |   0.0368 |             206 |
+    |   0.0 | 1.414 |   10.0 |    5000 |     4751 |     183 |   0.0366 |             211 |
 
 
 ## Case when alternative $\delta > 0$
@@ -219,7 +223,7 @@ sim_result2 = DataFrame(
 end
 ```
 
-    Progress: 100%|█████████████████████████████████████████| Time: 0:02:31
+    Progress: 100%|█████████████████████████████████████████| Time: 0:02:46
 
 
 Simulation result when $\delta=0.5$
@@ -227,23 +231,23 @@ Simulation result when $\delta=0.5$
 
 ```julia
 sim_result2 |>
-    df -> filter(x->x.delta==0.5, df)|>
-    df -> sort(df, [:delta, :r]) |>
-    printtable
+    @filter(_.delta==0.5)|>
+    @orderby(_.delta) |> @thenby(_.r) |>
+    df -> printtable(DataFrame(df))
 ```
 
     | delta |     r | thresh | num_sim | num_null | num_alt | err_rate | avg_sample_size |
     |-------|-------|--------|---------|----------|---------|----------|-----------------|
-    |   0.5 | 0.707 |    3.0 |    5000 |      694 |    4306 |   0.1388 |              26 |
-    |   0.5 | 0.707 |    5.0 |    5000 |       82 |    4918 |   0.0164 |              33 |
-    |   0.5 | 0.707 |    7.0 |    5000 |        0 |    5000 |      0.0 |              36 |
+    |   0.5 | 0.707 |    3.0 |    5000 |      727 |    4273 |   0.1454 |              26 |
+    |   0.5 | 0.707 |    5.0 |    5000 |       83 |    4917 |   0.0166 |              33 |
+    |   0.5 | 0.707 |    7.0 |    5000 |        1 |    4999 |   0.0002 |              37 |
     |   0.5 | 0.707 |   10.0 |    5000 |        0 |    5000 |      0.0 |              39 |
-    |   0.5 |   1.0 |    3.0 |    5000 |      674 |    4326 |   0.1348 |              25 |
-    |   0.5 |   1.0 |    5.0 |    5000 |       90 |    4910 |    0.018 |              33 |
-    |   0.5 |   1.0 |    7.0 |    5000 |        3 |    4997 |   0.0006 |              37 |
-    |   0.5 |   1.0 |   10.0 |    5000 |        0 |    5000 |      0.0 |              40 |
-    |   0.5 | 1.414 |    3.0 |    5000 |      746 |    4254 |   0.1492 |              26 |
-    |   0.5 | 1.414 |    5.0 |    5000 |       84 |    4916 |   0.0168 |              34 |
+    |   0.5 |   1.0 |    3.0 |    5000 |      759 |    4241 |   0.1518 |              26 |
+    |   0.5 |   1.0 |    5.0 |    5000 |       69 |    4931 |   0.0138 |              34 |
+    |   0.5 |   1.0 |    7.0 |    5000 |        2 |    4998 |   0.0004 |              37 |
+    |   0.5 |   1.0 |   10.0 |    5000 |        0 |    5000 |      0.0 |              39 |
+    |   0.5 | 1.414 |    3.0 |    5000 |      723 |    4277 |   0.1446 |              26 |
+    |   0.5 | 1.414 |    5.0 |    5000 |       97 |    4903 |   0.0194 |              33 |
     |   0.5 | 1.414 |    7.0 |    5000 |        0 |    5000 |      0.0 |              36 |
     |   0.5 | 1.414 |   10.0 |    5000 |        0 |    5000 |      0.0 |              40 |
 
@@ -266,28 +270,13 @@ sim_result.num_false_dis = sim_result.num_alt_0;
 sim_result.fdr = sim_result.num_false_dis ./ sim_result.num_dis;
 
 sim_result.type1_error = sim_result.num_alt_0 ./ sim_result.num_sim;
-#sim_result.type2_error = 1 .- sim_result.num_alt_1 ./ sim_result.num_sim;
-sim_result.power = sim_result.num_alt_1 ./ sim_result.num_sim;
-
-sim_result = sim_result |>
-    df -> select(df, [:delta_1, :r, :thresh, :num_sim, :num_null_0, :num_alt_0, 
-        :num_null_1, :num_alt_1, :type1_error, :power, :fdr]);
-```
-
-
-```julia
-sim_result.num_dis = sim_result.num_alt_0 + sim_result.num_alt_1;
-sim_result.num_false_dis = sim_result.num_alt_0;
-sim_result.fdr = sim_result.num_false_dis ./ sim_result.num_dis;
-
-sim_result.type1_error = sim_result.num_alt_0 ./ sim_result.num_sim;
 sim_result.type2_error = 1 .- sim_result.num_alt_1 ./ sim_result.num_sim;
-```
+sim_result.power = sim_result.num_alt_1 ./ sim_result.num_sim;
+sim_result.avg_sample_size = (sim_result.avg_sample_size_0 + sim_result.avg_sample_size_1) ./ 2
 
-
-```julia
 sim_result = sim_result |>
-    df -> select(df, [:delta_1, :r, :thresh, :num_sim, :num_alt_0, :num_alt_1, :type1_error, :power, :fdr]);
+    df -> select(df, [:delta_1, :r, :thresh, :num_sim, :num_alt_0, :num_alt_1, :type1_error,  
+                      :power, :fdr, :avg_sample_size]);
 ```
 
 Examples from merged dataframe:
@@ -295,29 +284,166 @@ Examples from merged dataframe:
 
 ```julia
 sim_result |>
-    df -> filter(
-        x -> ((x.delta_1 == 0.1) .& (x.r == 0.707)) .|
-             ((x.delta_1 == 0.1) .& (x.r == 1.0)) .|
-             ((x.delta_1 == 0.3) .& (x.r == 1.0))
-            , df) |>
-    df -> sort(df, [:delta_1, :r, :thresh]) |>
-    printtable
+    @filter(((_.delta_1 == 0.1) .& (_.r == 0.707)) .|
+            ((_.delta_1 == 0.1) .& (_.r == 1.0))  .|
+            ((_.delta_1 == 0.3) .& (_.r == 1.0)) .|
+            ((_.delta_1 == 0.3) .& (_.r == 1.414))) |>
+    @orderby(_.delta_1) |> @thenby(_.r) |> @thenby(_.thresh) |>
+    df -> printtable(DataFrame(df))
 ```
 
-    | delta_1 |     r | thresh | num_sim | num_alt_0 | num_alt_1 | type1_error |  power |       fdr |
-    |---------|-------|--------|---------|-----------|-----------|-------------|--------|-----------|
-    |     0.1 | 0.707 |    3.0 |    5000 |       311 |       568 |      0.0622 | 0.1136 |  0.353811 |
-    |     0.1 | 0.707 |    5.0 |    5000 |       288 |       812 |      0.0576 | 0.1624 |  0.261818 |
-    |     0.1 | 0.707 |    7.0 |    5000 |       238 |      1335 |      0.0476 |  0.267 |  0.151303 |
-    |     0.1 | 0.707 |   10.0 |    5000 |       181 |      2102 |      0.0362 | 0.4204 | 0.0792816 |
-    |     0.1 |   1.0 |    3.0 |    5000 |       338 |       542 |      0.0676 | 0.1084 |  0.384091 |
-    |     0.1 |   1.0 |    5.0 |    5000 |       282 |       810 |      0.0564 |  0.162 |  0.258242 |
-    |     0.1 |   1.0 |    7.0 |    5000 |       218 |      1329 |      0.0436 | 0.2658 |  0.140918 |
-    |     0.1 |   1.0 |   10.0 |    5000 |       210 |      2035 |       0.042 |  0.407 | 0.0935412 |
-    |     0.3 |   1.0 |    3.0 |    5000 |       338 |      2399 |      0.0676 | 0.4798 |  0.123493 |
-    |     0.3 |   1.0 |    5.0 |    5000 |       282 |      3843 |      0.0564 | 0.7686 | 0.0683636 |
-    |     0.3 |   1.0 |    7.0 |    5000 |       218 |      4762 |      0.0436 | 0.9524 | 0.0437751 |
-    |     0.3 |   1.0 |   10.0 |    5000 |       210 |      4990 |       0.042 |  0.998 | 0.0403846 |
+    | delta_1 |     r | thresh | num_sim | num_alt_0 | num_alt_1 | type1_error |  power |       fdr | avg_sample_size |
+    |---------|-------|--------|---------|-----------|-----------|-------------|--------|-----------|-----------------|
+    |     0.1 | 0.707 |    3.0 |    5000 |       320 |       518 |       0.064 | 0.1036 |  0.381862 |            24.5 |
+    |     0.1 | 0.707 |    5.0 |    5000 |       268 |       846 |      0.0536 | 0.1692 |  0.240575 |            55.0 |
+    |     0.1 | 0.707 |    7.0 |    5000 |       220 |      1387 |       0.044 | 0.2774 |  0.136901 |           126.0 |
+    |     0.1 | 0.707 |   10.0 |    5000 |       191 |      1999 |      0.0382 | 0.3998 | 0.0872146 |           274.5 |
+    |     0.1 |   1.0 |    3.0 |    5000 |       312 |       553 |      0.0624 | 0.1106 |  0.360694 |            24.5 |
+    |     0.1 |   1.0 |    5.0 |    5000 |       266 |       839 |      0.0532 | 0.1678 |  0.240724 |            55.0 |
+    |     0.1 |   1.0 |    7.0 |    5000 |       247 |      1301 |      0.0494 | 0.2602 |  0.159561 |           122.0 |
+    |     0.1 |   1.0 |   10.0 |    5000 |       184 |      2064 |      0.0368 | 0.4128 | 0.0818505 |           274.5 |
+    |     0.3 |   1.0 |    3.0 |    5000 |       312 |      2386 |      0.0624 | 0.4772 |  0.115641 |            26.0 |
+    |     0.3 |   1.0 |    5.0 |    5000 |       266 |      3951 |      0.0532 | 0.7902 |  0.063078 |            53.5 |
+    |     0.3 |   1.0 |    7.0 |    5000 |       247 |      4752 |      0.0494 | 0.9504 | 0.0494099 |            90.5 |
+    |     0.3 |   1.0 |   10.0 |    5000 |       184 |      4988 |      0.0368 | 0.9976 | 0.0355762 |           152.5 |
+    |     0.3 | 1.414 |    3.0 |    5000 |       320 |      2414 |       0.064 | 0.4828 |  0.117045 |            26.0 |
+    |     0.3 | 1.414 |    5.0 |    5000 |       275 |      3936 |       0.055 | 0.7872 | 0.0653052 |            53.0 |
+    |     0.3 | 1.414 |    7.0 |    5000 |       238 |      4757 |      0.0476 | 0.9514 | 0.0476476 |            92.5 |
+    |     0.3 | 1.414 |   10.0 |    5000 |       183 |      4993 |      0.0366 | 0.9986 | 0.0353555 |           155.0 |
+
+
+## Visualizations
+
+### Type I Error
+
+Some observations from the visualization below: 
+
+1. Higher thresholds will lower the Type I error rate.
+2. $r$ is the prior standard divation of effect size. For lower value thresholds, lower $r$ value will increase the Type I error. However, as the threshold increases, the $r$ value seems to have smaller impact on the Type I error.
+
+
+```julia
+# create labels for visualizations
+r_labels = hcat(["r=$val" for val in rs]...);
+thresh_labels = hcat(["thresh=$(Int(val))" for val in threshs]...);
+delta_labels = hcat(["\\delta=$(val)" for val in deltas]...);
+```
+
+
+```julia
+p0 = sim_result |>
+    @filter(_.delta_1==0.1) |>
+    @df plot(:thresh, [:type1_error], 
+             group=(:r), 
+             label=r_labels,
+             title="Bayes Factor Threshold vs Type I Error",
+             xlabel="BF Threshold",
+             ylabel="Type I Error",
+             legend=true)
+```
+
+
+
+
+    
+![svg](bayes_factor_optional_stopping_files/bayes_factor_optional_stopping_26_0.svg)
+    
+
+
+
+### Impact of Effect Size When $\delta_1 > 0$
+
+When the effect size gets larger, the power will increase and the FDR will decrease. 
+
+
+```julia
+p1 = sim_result |> 
+    @filter(_.r==0.707) |> 
+    @df plot(:delta_1, [:power], 
+        group=(:thresh), 
+        label=thresh_labels, 
+        xlabel="Effect Size \\delta",
+        ylabel="Power");
+
+p2 = sim_result |> 
+    @filter(_.r==0.707) |> 
+    @df plot(:delta_1, [:fdr], 
+        group=(:thresh), 
+        label=thresh_labels, 
+        xlabel="Effect Size \\delta",
+        ylabel="False Discovery Rate");
+
+plot(p1, p2, size=(800, 400), layout=(1, 2), left_margin=[15mm 0mm]) 
+```
+
+
+
+
+    
+![svg](bayes_factor_optional_stopping_files/bayes_factor_optional_stopping_29_0.svg)
+    
+
+
+
+### Impact of Bayes Factor Thresholds
+
+When Bayes Factor threshold increases, the power also increase. This is because as the power increases, the chance we will falsely select the null hypothesis decreases.
+
+The plots below shows the relationship between Bayes factor thresholds and power for different effect sizes.
+
+
+```julia
+function plot_thresh_vs_power(df, delta; xlabel="BF Threshold")
+    return df |> @df plot(
+        plot(:thresh, [:power], group=(:r), label=r_labels, xlabel=xlabel, ylabel="Power"),
+        plot(:thresh, [:fdr], group=(:r), label=r_labels, xlabel=xlabel, ylabel="FDR"),
+        title ="\\delta_{1} = $delta")
+end
+
+p1 = sim_result |>
+    @filter(_.delta_1==0.1) |>
+    df -> plot_thresh_vs_power(df, 0.1, xlabel="");
+
+p2 = sim_result |>
+    @filter(_.delta_1==0.3) |>
+    df -> plot_thresh_vs_power(df, 0.3, xlabel="");
+
+p3 = sim_result |>
+    @filter(_.delta_1==0.7) |>
+    df -> plot_thresh_vs_power(df, 0.7);
+
+plot(p1, p2, p3, layout=(3, 1), size=(800, 800))
+```
+
+
+
+
+    
+![svg](bayes_factor_optional_stopping_files/bayes_factor_optional_stopping_32_0.svg)
+    
+
+
+
+### Average Sample Sizes vs. Bayes Factor Thresholds
+
+The average sample sizes needed to stop the experiment and make decision. As Bayes factor threshold gets larger, the expected sample sizes also get larger.
+
+
+```julia
+sim_result |> 
+    @filter(_.r==0.707) |>
+    @df plot(:thresh, [:avg_sample_size], 
+            group=(:delta_1), legend=:topleft, label=delta_labels,
+            xlabel="Bayes Factor Thresholds", ylabel="Average Sample Size")
+```
+
+
+
+
+    
+![svg](bayes_factor_optional_stopping_files/bayes_factor_optional_stopping_35_0.svg)
+    
+
 
 
 ## References
