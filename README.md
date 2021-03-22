@@ -1,7 +1,7 @@
 # BayesianExperiments.jl
 
-[![Stable Doc](https://img.shields.io/badge/docs-stable-blue.svg)][1]
 [![Latest Doc](https://img.shields.io/badge/docs-latest-blue.svg)][2]
+[![Stable Doc](https://img.shields.io/badge/docs-stable-blue.svg)][1]
 [![codecov](https://codecov.io/gh/rakutentech/BayesianExperiments.jl/branch/main/graph/badge.svg?token=DOZ0HIW1V8)](https://codecov.io/gh/rakutentech/BayesianExperiments.jl)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rakutentech/BayesianExperiments.jl/main?filepath=examples)
 
