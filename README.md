@@ -24,6 +24,8 @@ For detailed discussions on many topics in the field, see the Jupyter notebooks 
 - [Type S Error in Fixed Horizon and Sequential Test Experiment](examples/type_s_error.ipynb)
 - [Bayes Factor Experiment with Optional Stopping](examples/bayes_factor_optional_stopping.ipynb)
 
+Or you can go to [binder](https://mybinder.org/v2/gh/rakutentech/BayesianExperiments.jl/main?filepath=examples) to directly play with the Jupyter notebooks.
+
 [1]: https://rakutentech.github.io/BayesianExperiments.jl/stable/
 [2]: https://rakutentech.github.io/BayesianExperiments.jl/latest/
 
