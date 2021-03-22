@@ -6,7 +6,10 @@ This example is taken from the post [Is Bayesian A/B Testing Immune to Peeking? 
 
 
 ```julia
-# setup noteoobk environment
+# Setup notebook running environment.
+# Please Be Patient: it might take a long time to 
+# precompile these packages the first time you run 
+# this notebook in your local environment.
 import Pkg
 Pkg.activate(".")
 Pkg.instantiate();

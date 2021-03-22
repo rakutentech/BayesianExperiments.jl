@@ -2,7 +2,10 @@
 
 
 ```julia
-# setup noteoobk environment
+# Setup notebook running environment.
+# Please Be Patient: it might take a long time to 
+# precompile these packages the first time you run 
+# this notebook in your local environment.
 import Pkg
 Pkg.activate(".")
 Pkg.instantiate();
@@ -291,6 +294,7 @@ Examples from merged dataframe:
 sim_result |>
     @filter(((_.delta_1 == 0.1) .& (_.r == 0.707)) .|
             ((_.delta_1 == 0.1) .& (_.r == 1.0))  .|
+            ((_.delta_1 == 0.3) .& (_.r == 0.707)) .|
             ((_.delta_1 == 0.3) .& (_.r == 1.0)) .|
             ((_.delta_1 == 0.3) .& (_.r == 1.414))) |>
     @orderby(_.delta_1) |> @thenby(_.r) |> @thenby(_.thresh) |>
@@ -307,6 +311,10 @@ sim_result |>
     |     0.1 |   1.0 |    5.0 |    5000 |       266 |       839 |      0.0532 | 0.1678 |  0.240724 |            55.0 |
     |     0.1 |   1.0 |    7.0 |    5000 |       247 |      1301 |      0.0494 | 0.2602 |  0.159561 |           122.0 |
     |     0.1 |   1.0 |   10.0 |    5000 |       184 |      2064 |      0.0368 | 0.4128 | 0.0818505 |           274.5 |
+    |     0.3 | 0.707 |    3.0 |    5000 |       320 |      2400 |       0.064 |   0.48 |  0.117647 |            26.0 |
+    |     0.3 | 0.707 |    5.0 |    5000 |       268 |      3908 |      0.0536 | 0.7816 | 0.0641762 |            53.0 |
+    |     0.3 | 0.707 |    7.0 |    5000 |       220 |      4767 |       0.044 | 0.9534 | 0.0441147 |            91.5 |
+    |     0.3 | 0.707 |   10.0 |    5000 |       191 |      4990 |      0.0382 |  0.998 | 0.0368655 |           152.0 |
     |     0.3 |   1.0 |    3.0 |    5000 |       312 |      2386 |      0.0624 | 0.4772 |  0.115641 |            26.0 |
     |     0.3 |   1.0 |    5.0 |    5000 |       266 |      3951 |      0.0532 | 0.7902 |  0.063078 |            53.5 |
     |     0.3 |   1.0 |    7.0 |    5000 |       247 |      4752 |      0.0494 | 0.9504 | 0.0494099 |            90.5 |
@@ -324,7 +332,7 @@ sim_result |>
 Some observations from the visualization below: 
 
 1. Higher thresholds will lower the Type I error rate.
-2. $r$ is the prior standard divation of effect size. For lower value thresholds, lower $r$ value will increase the Type I error. However, as the threshold increases, the $r$ value seems to have smaller impact on the Type I error.
+2. Standard deviation of prior of effect size ($r$). For lower value thresholds, lower $r$ value will increase the Type I error. However, as the threshold increases, the $r$ value seems to have smaller impact on the Type I error.
 
 
 ```julia
