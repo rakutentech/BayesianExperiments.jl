@@ -15,6 +15,10 @@ struct ExponentialPosteriorSample <: SinglePosteriorSample
     θ::Vector{Real} # scale, inverse of rate λ in wikipedia
 end
 
+struct PoissonPosteriorSample <: SinglePosteriorSample
+    λ::Vector{Real} 
+end
+
 struct NormalPosteriorSample <: MultiplePosteriorSample 
     μ::Vector{Real}
     σ²::Vector{Real}

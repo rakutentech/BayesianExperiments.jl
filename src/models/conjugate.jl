@@ -36,7 +36,7 @@ end
 
 defaultparams(::ConjugateBernoulli) = [:θ]
 
-function update!(model::ConjugateBernoulli, stats::BernoulliStatistics)
+function update!(model::ConjugateBernoulli, stats::BetaStatistics)
     numsuccesses = stats.s 
     numtrials = stats.n
     α = model.dist.α + numsuccesses
@@ -67,7 +67,18 @@ end
 
 defaultparams(::ConjugateExponential) = [:θ]
 
-function update!(model::ConjugateExponential, stats::ExponentialStatistics)
+mutable struct ConjugatePoisson <: ConjugateModel
+    dist::Gamma
+    function ConjugatePoisson(α, θ)
+        return new(Gamma(α, θ))
+    end
+end
+
+defaultparams(::ConjugatePoisson) = [:λ]
+
+function update!(model::T, stats::S) where 
+        {T<:Union{ConjugateExponential, ConjugatePoisson}, 
+         S<:Union{GammaStatistics}}
     n = stats.n
     x̄ = stats.x̄
     α = model.dist.α + n
@@ -233,6 +244,12 @@ function samplepost(model::ConjugateExponential, numsamples::Int)
     return ExponentialPosteriorSample(θs)
 end
 
+function samplepost(model::ConjugatePoisson, numsamples::Int)
+    inv_rates = rand(model.dist, numsamples)
+    λs = 1 ./ inv_rates
+    return PoissonPosteriorSample(λs)
+end
+
 function samplepost(model::ConjugateNormal{NormalInverseGamma}, numsamples::Int) 
     μ, σ² = rand(model.dist, numsamples)
     return NormalPosteriorSample(μ, σ²)
@@ -284,11 +301,15 @@ Sample from the distribution of the data generating process, and
 calculate the corresponding statistics for the model.
 """
 function samplestats(::ConjugateBernoulli, dist::Bernoulli, numsamples::Integer)
-    return BernoulliStatistics(rand(dist, numsamples))
+    return BetaStatistics(rand(dist, numsamples))
 end
 
 function samplestats(::ConjugateExponential, dist::Exponential, numsamples::Integer)
-    return ExponentialStatistics(rand(dist, numsamples))
+    return GammaStatistics(rand(dist, numsamples))
+end
+
+function samplestats(::ConjugatePoisson, dist::Poisson, numsamples::Integer)
+    return GammaStatistics(rand(dist, numsamples))
 end
 
 function samplestats(::ConjugateNormal{NormalInverseGamma}, dist::Normal, numsamples::Integer)

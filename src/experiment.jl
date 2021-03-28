@@ -268,7 +268,7 @@ function decide!(experiment::ExperimentABN, parameters::Vector{Symbol}; numsampl
     if checkrule(experiment.rule, winnermetric[winnerindex])
         experiment.winner = experiment.modelnames[winnerindex] 
     end
-    return experiment.winner
+    return (experiment.winner, winnermetric)
 end
 
 function decide!(experiment::ExperimentABN; numsamples=10_000)
@@ -281,7 +281,7 @@ function decide!(experiment::ExperimentBF)
     bayesfactor = metrics(experiment)
     rule = experiment.rule
     experiment.winner = _decide(rule, bayesfactor, modelnames)
-    return experiment.winner
+    return (experiment.winner, bayesfactor)
 end
 
 function _decide(onesidethresh::OneSidedBFThresh, bayesfactor::Real, modelnames)

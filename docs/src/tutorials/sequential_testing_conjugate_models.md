@@ -67,8 +67,8 @@ for _ = 1:max_days
     dataB = rand(Bernoulli(0.0102), 1000)
     
     # convert data into statistics
-    statsA = BernoulliStatistics(dataA)
-    statsB = BernoulliStatistics(dataB)
+    statsA = BetaStatistics(dataA)
+    statsB = BetaStatistics(dataB)
     
     # update the models in the experiment with the statistics
     update!(experiment, [statsA, statsB])
@@ -79,7 +79,7 @@ for _ = 1:max_days
     push!(expected_losses, losses)
     
     # select winner, get "nothing" if there is no winner
-    winner = decide!(experiment)
+    winner, _ = decide!(experiment)
     
     # stop the experiment if we already find a winner
     if winner !== nothing

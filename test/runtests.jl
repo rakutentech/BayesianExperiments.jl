@@ -1,6 +1,6 @@
 using Test
 using Random
-using Distributions: Bernoulli, LogNormal
+using Distributions: Bernoulli, LogNormal, Poisson
 using Statistics:std
 
 using BayesianExperiments

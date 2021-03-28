@@ -40,8 +40,8 @@ stoppingrule = ExpectedLossThresh(0.0002)
 experiment = ExperimentAB([modelA, modelB], stoppingrule)
 
 # Calculate the statistics from our sample data
-statsA = BernoulliStatistics(dataA)
-statsB = BernoulliStatistics(dataB)
+statsA = BetaStatistics(dataA)
+statsB = BetaStatistics(dataB)
 
 # Update the models in the experiment with the newly created statistics
 update!(experiment, [statsA, statsB])
