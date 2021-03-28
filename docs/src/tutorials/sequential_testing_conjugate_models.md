@@ -79,7 +79,7 @@ for _ = 1:max_days
     push!(expected_losses, losses)
     
     # select winner, get "nothing" if there is no winner
-    winner = decide!(experiment)
+    winner, _ = decide!(experiment)
     
     # stop the experiment if we already find a winner
     if winner !== nothing

@@ -93,7 +93,8 @@ end
             @test explosses[2] ≈ 0
         end
 
-        @test decide!(experiment) == "variant 1"
+        winner, _ = decide!(experiment)
+        @test winner == "variant 1"
     end
 
 
@@ -170,7 +171,7 @@ end
         @test bf10_model == bf10_exp
         @test isapprox(bf10_exp, 1/5.45, rtol=0.01)
 
-        winner = decide!(experiment)
+        winner, _ = decide!(experiment)
         @test winner == "null"
     end
 
@@ -192,7 +193,7 @@ end
         @test bf10_model == bf10_exp
         @test isapprox(bf10_exp, 46.6077, rtol=0.01)
 
-        winner = decide!(experiment)
+        winner, _ = decide!(experiment)
         @test winner == "alternative"
     end
 
@@ -214,7 +215,7 @@ end
         @test bf10_model == bf10_exp
         @test isapprox(bf10_exp, 1/5.45, rtol=0.01)
 
-        winner = decide!(experiment)
+        winner, _ = decide!(experiment)
         @test winner === nothing 
     end
 
@@ -236,7 +237,7 @@ end
         @test bf10_model == bf10_exp
         @test isapprox(bf10_exp, 1/5.45, rtol=0.01)
 
-        winner = decide!(experiment)
+        winner, _ = decide!(experiment)
         @test winner === nothing 
     end
 
@@ -258,7 +259,7 @@ end
         @test bf10_model == bf10_exp
         @test isapprox(bf10_exp, 46.6077, rtol=0.01)
 
-        winner = decide!(experiment)
+        winner, _ = decide!(experiment)
         @test winner == "alternative"
     end
 end

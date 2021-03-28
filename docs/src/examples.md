@@ -39,7 +39,7 @@ update!(experiment, [statsA, statsB])
 winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = decide!(experiment)
+winner, _ = decide!(experiment)
 ```
 
 ### Example: Three Models
@@ -78,7 +78,7 @@ update!(experiment, [statsA, statsB, statsC])
 winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = decide!(experiment)
+winner, _ = decide!(experiment)
 ```
 
 ### Example: Chained Models
@@ -125,7 +125,7 @@ update!(experiment, [[statsA1, statsA2], [statsB1, statsB2]])
 winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = decide!(experiment)
+winner, _ = decide!(experiment)
 ```
 
 ### Example: Power Analysis
@@ -199,7 +199,7 @@ experiment = ExperimentBF(model=model, rule=stoppingrule)
 update!(experiment, normalstats)
 
 # make decision on the experiment
-decide!(experiment)
+winner, _ = decide!(experiment)
 ```
 
 ### Example: Two groups
@@ -233,5 +233,5 @@ experiment = ExperimentBF(model=model, rule=stoppingrule)
 update!(experiment, normalstats)
 
 # make decision on the experiment
-decide!(experiment)
+winner, _ = decide!(experiment)
 ```
