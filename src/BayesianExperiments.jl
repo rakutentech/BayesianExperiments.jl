@@ -5,7 +5,8 @@ using Base
 using StaticArrays:SVector
 using Distributions: 
     pdf, 
-    Beta, Gamma, LogNormal, Bernoulli, Exponential, InverseGamma, Normal,
+    Beta, Gamma, LogNormal, Bernoulli, Exponential, Poisson, 
+    InverseGamma, Normal,
     ContinuousUnivariateDistribution, UnivariateDistribution
 using QuadGK
 
@@ -36,8 +37,8 @@ export
     convert,
 
     # data.jl
-    BernoulliStatistics, 
-    ExponentialStatistics,
+    BetaStatistics, 
+    GammaStatistics,
     NormalStatistics,
     LogNormalStatistics,
     TwoNormalStatistics,
@@ -74,6 +75,9 @@ export
 
     ConjugateExponential,
     ExponentialPosteriorSample,
+
+    ConjugatePoisson,
+    PoissonPosteriorSample,
 
     ConjugateNormal,
     NormalPosteriorSample,

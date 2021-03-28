@@ -84,6 +84,48 @@ end
     end
 end
 
+@testset "ConjugatePoisson" begin
+    # underlying distribution
+    n = 100_000
+    Random.seed!(1234)
+    λ = 0.5 
+    data = rand(Poisson(λ), n)
+    
+    @testset "Posteriors sampling" begin
+        model = ConjugatePoisson(0.001, 1000)
+        stats = GammaStatistics(n=n, x̄=mean(data))
+        update!(model, stats)
+        posterior_samples = samplepost(model, 100_000)
+        @test isapprox(mean(posterior_samples.λ), λ, atol=0.1) 
+    end
+
+    @testset "GammaStatistics constructor" begin
+        stats = GammaStatistics(data)
+        @test stats.n == n
+        @test isapprox(stats.x̄, λ, atol=0.1)
+    end
+
+    @testset "Online update vs. One shot update" begin
+        numsteps = 10
+        α = 2 
+        θ = 5 
+        data_by_step = reshape(data, (10, div(n, numsteps)))
+        model_online = ConjugatePoisson(α, θ)
+        for i = 1:numsteps
+            stats = GammaStatistics(data_by_step[i, :]) 
+            update!(model_online, stats)
+        end
+
+        model_oneshot = ConjugatePoisson(α, θ)
+        stats = GammaStatistics(data)
+        update!(model_oneshot, stats)
+
+        @test typeof(model_online.dist) === typeof(model_oneshot.dist)
+        @test model_online.dist.α ≈ model_oneshot.dist.α
+        @test model_online.dist.θ ≈ model_oneshot.dist.θ
+    end
+end
+
 @testset "ConjugateNormal" begin
     # underlying distribution
     n = 100_000
