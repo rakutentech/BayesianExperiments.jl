@@ -1,40 +1,40 @@
 abstract type ModelStatistics end
 
 """
-    BernoulliStatistics(numsuccesses, numtrials)
+    BetaStatistics(numsuccesses, numtrials)
 
-Sample statistics of data generated from Bernoulli distribution.
+Sample statistics of data needed to update a Beta distribution.
 """
-struct BernoulliStatistics <: ModelStatistics
+struct BetaStatistics <: ModelStatistics
     s::Int
     n::Int
-    function BernoulliStatistics(; s::Int, n::Int)
+    function BetaStatistics(; s::Int, n::Int)
         # TODO: validate input data
         s <= n ||
             error("Number of trials should be equal or larger than number of successes.")
         return new(s, n)
     end
 
-    function BernoulliStatistics(data::Vector{T}) where {T<:Real}
+    function BetaStatistics(data::Vector{T}) where {T<:Real}
         return new(sum(data), length(data))
     end
 end
 
 """
-    ExponentialStatistics <: ModelStatistics
+    GammaStatistics <: ModelStatistics
 
-Sample statistics of data generated from Expoential distribution.
+Sample statistics of data needed to update a Gamma distribution.
 """
-struct ExponentialStatistics <: ModelStatistics
+struct GammaStatistics <: ModelStatistics
     n::Int
     x̄::Real
 
-    function ExponentialStatistics(; n, x̄)
+    function GammaStatistics(; n, x̄)
         # TODO: validate input data
         return new(n, x̄)
     end
 
-    function ExponentialStatistics(data::Vector{T}) where {T<:Real}
+    function GammaStatistics(data::Vector{T}) where {T<:Real}
         return new(length(data), mean(data))
     end
 end
@@ -42,7 +42,7 @@ end
 """
     NormalStatistics <: ModelStatistics
 
-Sufficient statistics for normal distribution.
+Sample statistics of data related to Normal distribution.
 
 ## Methods
 
@@ -138,7 +138,7 @@ end
 """
     LogNormalStatistics <: ModelStatistics
 
-Sample statistics of data generated from Expoential distribution.
+Sample statistics of data related to Log-Normal distribution.
 """
 struct LogNormalStatistics <: ModelStatistics
     n::Int
@@ -189,6 +189,11 @@ function tstatwelch(twostats::TwoNormalStatistics)
     return (mu1 - mu2) / se
 end
 
+"""
+    StudentTStatistics <: ModelStatistics
+
+Sample statistics of data related to Student's t distribution. 
+"""
 struct StudentTStatistics <: ModelStatistics
     t::Real
     dof::Real
