@@ -17,8 +17,8 @@ stoppingrule = ExpectedLossThresh(0.0002)
 experiment = ExperimentAB([modelA, modelB], stoppingrule)
 
 # Calculate the statistics from our sample data
-statsA = BernoulliStatistics(dataA)
-statsB = BernoulliStatistics(dataB)
+statsA = BetaStatistics(dataA)
+statsB = BetaStatistics(dataB)
 
 # Update the models in the experiment with the newly created statistics
 update!(experiment, [statsA, statsB])
@@ -27,7 +27,7 @@ update!(experiment, [statsA, statsB])
 winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = decide!(experiment)</code></pre><h3 id="Example:-Three-Models"><a class="docs-heading-anchor" href="#Example:-Three-Models">Example: Three Models</a><a id="Example:-Three-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Three-Models" title="Permalink"></a></h3><p>Similar to the two models cases, but now we have three models.</p><pre><code class="language-julia">using BayesianExperiments
+winner, _ = decide!(experiment)</code></pre><h3 id="Example:-Three-Models"><a class="docs-heading-anchor" href="#Example:-Three-Models">Example: Three Models</a><a id="Example:-Three-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Three-Models" title="Permalink"></a></h3><p>Similar to the two models cases, but now we have three models.</p><pre><code class="language-julia">using BayesianExperiments
 
 # Generate sample data
 n = 1000
@@ -47,9 +47,9 @@ stoppingrule = ProbabilityBeatAllThresh(0.99)
 experiment = ExperimentABN([modelA, modelB, modelC], stoppingrule)
 
 # Calculate the statistics from our sample data
-statsA = BernoulliStatistics(dataA)
-statsB = BernoulliStatistics(dataB)
-statsC = BernoulliStatistics(dataC)
+statsA = BetaStatistics(dataA)
+statsB = BetaStatistics(dataB)
+statsC = BetaStatistics(dataC)
 
 # Update the model in the experiment with the newly created statistics
 update!(experiment, [statsA, statsB, statsC])
@@ -58,7 +58,7 @@ update!(experiment, [statsA, statsB, statsC])
 winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = decide!(experiment)</code></pre><h3 id="Example:-Chained-Models"><a class="docs-heading-anchor" href="#Example:-Chained-Models">Example: Chained Models</a><a id="Example:-Chained-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Chained-Models" title="Permalink"></a></h3><p>We have a chained model with ConjugateBernoulli and ConjugateLogNormal. A common use case is when we want to use revenue per visitor as the metric. We need to model distributions of both the conversion rate and revenue.  </p><pre><code class="language-julia">using BayesianExperiments
+winner, _ = decide!(experiment)</code></pre><h3 id="Example:-Chained-Models"><a class="docs-heading-anchor" href="#Example:-Chained-Models">Example: Chained Models</a><a id="Example:-Chained-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Chained-Models" title="Permalink"></a></h3><p>We have a chained model with ConjugateBernoulli and ConjugateLogNormal. A common use case is when we want to use revenue per visitor as the metric. We need to model distributions of both the conversion rate and revenue.  </p><pre><code class="language-julia">using BayesianExperiments
 
 # Generate sample data
 n = 1000
@@ -68,9 +68,9 @@ dataB1 = rand(Bernoulli(0.060), n)
 dataB2 = rand(LogNormal(1.0, 1.0), n)
 
 # Calculate the statistics from our sample data
-statsA1 = BernoulliStatistics(dataA1)
+statsA1 = BetaStatistics(dataA1)
 statsA2 = LogNormalStatistics(dataA2)
-statsB1 = BernoulliStatistics(dataB1)
+statsB1 = BetaStatistics(dataB1)
 statsB2 = LogNormalStatistics(dataB2)
 
 # Setup the experiment
@@ -96,7 +96,7 @@ update!(experiment, [[statsA1, statsA2], [statsB1, statsB2]])
 winner_index, expected_losses = metrics(experiment)
 
 # Or, we can directly find the winning model in the experiment 
-winner = decide!(experiment)</code></pre><h3 id="Example:-Power-Analysis"><a class="docs-heading-anchor" href="#Example:-Power-Analysis">Example: Power Analysis</a><a id="Example:-Power-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Power-Analysis" title="Permalink"></a></h3><pre><code class="language-julia"># Choose the underlying data generating distributions
+winner, _ = decide!(experiment)</code></pre><h3 id="Example:-Power-Analysis"><a class="docs-heading-anchor" href="#Example:-Power-Analysis">Example: Power Analysis</a><a id="Example:-Power-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Power-Analysis" title="Permalink"></a></h3><pre><code class="language-julia"># Choose the underlying data generating distributions
 datagendists = [Bernoulli(0.2), Bernoulli(0.25)]
 
 # Choose the parameters of the simulation
@@ -154,7 +154,7 @@ experiment = ExperimentBF(model=model, rule=stoppingrule)
 update!(experiment, normalstats)
 
 # make decision on the experiment
-decide!(experiment)</code></pre><h3 id="Example:-Two-groups"><a class="docs-heading-anchor" href="#Example:-Two-groups">Example: Two groups</a><a id="Example:-Two-groups-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Two-groups" title="Permalink"></a></h3><p>This example uses the <code>Chicken Weights by Feed Type</code> in <code>R</code>.</p><pre><code class="language-julia">horsebean=[179, 160, 136, 227, 217, 168, 108, 124, 143, 140]
+winner, _ = decide!(experiment)</code></pre><h3 id="Example:-Two-groups"><a class="docs-heading-anchor" href="#Example:-Two-groups">Example: Two groups</a><a id="Example:-Two-groups-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Two-groups" title="Permalink"></a></h3><p>This example uses the <code>Chicken Weights by Feed Type</code> in <code>R</code>.</p><pre><code class="language-julia">horsebean=[179, 160, 136, 227, 217, 168, 108, 124, 143, 140]
 linseed=[309, 229, 181, 141, 260, 203, 148, 169, 213, 257, 244, 271]
 
 # Calculate normal statistics from data in each group
@@ -180,4 +180,4 @@ experiment = ExperimentBF(model=model, rule=stoppingrule)
 update!(experiment, normalstats)
 
 # make decision on the experiment
-decide!(experiment)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 22 March 2021 05:17">Monday 22 March 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+winner, _ = decide!(experiment)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 28 March 2021 15:51">Sunday 28 March 2021</span>. Using Julia version 1.5.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
