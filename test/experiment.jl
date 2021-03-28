@@ -59,9 +59,9 @@ end
         dataB1 = rand(truedistB1, eachrunnum)
         dataB2 = rand(truedistB2, eachrunnum)
 
-        statsA1 = BernoulliStatistics(dataA1)
+        statsA1 = BetaStatistics(dataA1)
         statsA2 = LogNormalStatistics(dataA2)
-        statsB1 = BernoulliStatistics(dataB1)
+        statsB1 = BetaStatistics(dataB1)
         statsB2 = LogNormalStatistics(dataB2)
 
         modelA = ChainedModel(
