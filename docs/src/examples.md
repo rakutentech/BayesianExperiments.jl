@@ -29,8 +29,8 @@ stoppingrule = ExpectedLossThresh(0.0002)
 experiment = ExperimentAB([modelA, modelB], stoppingrule)
 
 # Calculate the statistics from our sample data
-statsA = BernoulliStatistics(dataA)
-statsB = BernoulliStatistics(dataB)
+statsA = BetaStatistics(dataA)
+statsB = BetaStatistics(dataB)
 
 # Update the models in the experiment with the newly created statistics
 update!(experiment, [statsA, statsB])
@@ -67,9 +67,9 @@ stoppingrule = ProbabilityBeatAllThresh(0.99)
 experiment = ExperimentABN([modelA, modelB, modelC], stoppingrule)
 
 # Calculate the statistics from our sample data
-statsA = BernoulliStatistics(dataA)
-statsB = BernoulliStatistics(dataB)
-statsC = BernoulliStatistics(dataC)
+statsA = BetaStatistics(dataA)
+statsB = BetaStatistics(dataB)
+statsC = BetaStatistics(dataC)
 
 # Update the model in the experiment with the newly created statistics
 update!(experiment, [statsA, statsB, statsC])
@@ -97,9 +97,9 @@ dataB1 = rand(Bernoulli(0.060), n)
 dataB2 = rand(LogNormal(1.0, 1.0), n)
 
 # Calculate the statistics from our sample data
-statsA1 = BernoulliStatistics(dataA1)
+statsA1 = BetaStatistics(dataA1)
 statsA2 = LogNormalStatistics(dataA2)
-statsB1 = BernoulliStatistics(dataB1)
+statsB1 = BetaStatistics(dataB1)
 statsB2 = LogNormalStatistics(dataB2)
 
 # Setup the experiment

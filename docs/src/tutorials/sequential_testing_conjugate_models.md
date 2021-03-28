@@ -67,8 +67,8 @@ for _ = 1:max_days
     dataB = rand(Bernoulli(0.0102), 1000)
     
     # convert data into statistics
-    statsA = BernoulliStatistics(dataA)
-    statsB = BernoulliStatistics(dataB)
+    statsA = BetaStatistics(dataA)
+    statsB = BetaStatistics(dataB)
     
     # update the models in the experiment with the statistics
     update!(experiment, [statsA, statsB])
